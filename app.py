@@ -1,8 +1,14 @@
 from flask import Flask, render_template, jsonify, request, session
 import random
 import os
+from pathlib import Path
 
-app = Flask(__name__)
+# Get the directory where app.py is located
+BASE_DIR = Path(__file__).resolve().parent
+
+app = Flask(__name__, 
+            template_folder=str(BASE_DIR / 'templates'),
+            static_folder=str(BASE_DIR / 'static'))
 app.secret_key = os.urandom(24)
 
 # Halloween vocabulary with definitions and hints
@@ -199,4 +205,8 @@ def vocabulary_list():
     return render_template('vocabulary.html', words=HALLOWEEN_WORDS)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    print(f"Starting app on port {port}")
+    print(f"Template folder: {app.template_folder}")
+    print(f"Static folder: {app.static_folder}")
+    app.run(debug=False, host='0.0.0.0', port=port)
