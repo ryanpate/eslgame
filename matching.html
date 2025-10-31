@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Match Words - Halloween Vocabulary{% endblock %}
+
+{% block content %}
+<div class="game-header">
+    <h1>🎯 Match the Words!</h1>
+    <p>Click a word, then click its definition</p>
+    <div class="game-stats">
+        <span>Score: <span id="score">0</span></span>
+        <span>Matches: <span id="matches">0</span>/{{ words|length }}</span>
+    </div>
+</div>
+
+<div id="matching-game">
+    <div class="matching-grid">
+        <div class="column" id="words-column">
+            <h3>Words 📝</h3>
+            <div class="cards-container">
+                {% for word in words.keys() %}
+                <div class="match-card word-card" data-word="{{ word }}">
+                    <span class="card-emoji">{{ words[word].emoji }}</span>
+                    <span class="card-text">{{ word }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="column" id="definitions-column">
+            <h3>Definitions 📖</h3>
+            <div class="cards-container">
+                {% for word in shuffled_defs %}
+                <div class="match-card definition-card" data-word="{{ word }}">
+                    <span class="card-text">{{ words[word].definition }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="result-popup" class="popup hidden">
+    <div class="popup-content">
+        <span class="popup-emoji"></span>
+        <h2 class="popup-title"></h2>
+        <p class="popup-message"></p>
+        <button class="btn btn-primary" onclick="closePopup()">Continue</button>
+    </div>
+</div>
+
+<div id="complete-popup" class="popup hidden">
+    <div class="popup-content celebration">
+        <h2>🎉 Amazing! 🎉</h2>
+        <p>You matched all the words!</p>
+        <div class="final-score">
+            Final Score: <span id="final-score">0</span>
+        </div>
+        <div class="popup-buttons">
+            <a href="{{ url_for('matching_game', difficulty=difficulty) }}" class="btn btn-primary">Play Again</a>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Home</a>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedWord = null;
+let selectedDefinition = null;
+let score = 0;
+let matches = 0;
+const totalMatches = {{ words|length }};
+const words = {{ words|tojson }};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const wordCards = document.querySelectorAll('.word-card');
+    const defCards = document.querySelectorAll('.definition-card');
+
+    wordCards.forEach(card => {
+        card.addEventListener('click', () => selectCard(card, 'word'));
+    });
+
+    defCards.forEach(card => {
+        card.addEventListener('click', () => selectCard(card, 'definition'));
+    });
+});
+
+function selectCard(card, type) {
+    if (card.classList.contains('matched')) return;
+
+    if (type === 'word') {
+        // Deselect previous word
+        if (selectedWord) {
+            selectedWord.classList.remove('selected');
+        }
+        selectedWord = card;
+        card.classList.add('selected');
+    } else {
+        // Deselect previous definition
+        if (selectedDefinition) {
+            selectedDefinition.classList.remove('selected');
+        }
+        selectedDefinition = card;
+        card.classList.add('selected');
+    }
+
+    // Check if both are selected
+    if (selectedWord && selectedDefinition) {
+        checkMatch();
+    }
+}
+
+function checkMatch() {
+    const word = selectedWord.dataset.word;
+    const definition = selectedDefinition.dataset.word;
+
+    if (word === definition) {
+        // Correct match!
+        selectedWord.classList.add('matched');
+        selectedDefinition.classList.add('matched');
+        selectedWord.classList.remove('selected');
+        selectedDefinition.classList.remove('selected');
+        
+        score += 10;
+        matches++;
+        
+        updateStats();
+        showResult(true, word);
+        
+        if (matches === totalMatches) {
+            setTimeout(showComplete, 1000);
+        }
+    } else {
+        // Wrong match
+        selectedWord.classList.add('wrong');
+        selectedDefinition.classList.add('wrong');
+        
+        setTimeout(() => {
+            selectedWord.classList.remove('wrong', 'selected');
+            selectedDefinition.classList.remove('wrong', 'selected');
+            selectedWord = null;
+            selectedDefinition = null;
+        }, 800);
+        
+        showResult(false, word);
+    }
+    
+    selectedWord = null;
+    selectedDefinition = null;
+}
+
+function updateStats() {
+    document.getElementById('score').textContent = score;
+    document.getElementById('matches').textContent = matches;
+}
+
+function showResult(correct, word) {
+    const popup = document.getElementById('result-popup');
+    const emoji = popup.querySelector('.popup-emoji');
+    const title = popup.querySelector('.popup-title');
+    const message = popup.querySelector('.popup-message');
+
+    if (correct) {
+        emoji.textContent = words[word].emoji;
+        title.textContent = '✅ Correct!';
+        message.textContent = `"${word}" - ${words[word].hint}`;
+        popup.classList.add('success');
+    } else {
+        emoji.textContent = '❌';
+        title.textContent = 'Try Again!';
+        message.textContent = 'That\'s not the right match. Keep trying!';
+        popup.classList.remove('success');
+    }
+
+    popup.classList.remove('hidden');
+    setTimeout(closePopup, 2000);
+}
+
+function closePopup() {
+    document.getElementById('result-popup').classList.add('hidden');
+}
+
+function showComplete() {
+    const popup = document.getElementById('complete-popup');
+    document.getElementById('final-score').textContent = score;
+    popup.classList.remove('hidden');
+}
+</script>
+{% endblock %}
