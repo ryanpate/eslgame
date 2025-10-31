@@ -1,109 +1,138 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halloween Vocabulary Game</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🎃</span>
+                    <span>Halloween Vocab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">🏠 Home</a>
+                    <a href="vocabulary.html">📚 Words</a>
+                </div>
+            </nav>
+        </header>
 
-{% block content %}
-<div class="hero">
-    <h1 class="title">🎃 Halloween Vocabulary Games 👻</h1>
-    <p class="subtitle">Learn English Words with Fun Halloween Games!</p>
-</div>
+        <main>
+            <div class="hero">
+                <h1 class="title">🎃 Halloween Vocabulary Games 👻</h1>
+                <p class="subtitle">Learn English Words with Fun Halloween Games!</p>
+            </div>
 
-<div class="difficulty-selector">
-    <h2>Choose Your Level:</h2>
-    <div class="difficulty-buttons">
-        <button class="diff-btn active" data-level="all">
-            <span class="emoji">⭐</span>
-            <span>All Levels</span>
-        </button>
-        <button class="diff-btn" data-level="easy">
-            <span class="emoji">😊</span>
-            <span>Easy</span>
-        </button>
-        <button class="diff-btn" data-level="medium">
-            <span class="emoji">😐</span>
-            <span>Medium</span>
-        </button>
-        <button class="diff-btn" data-level="hard">
-            <span class="emoji">😤</span>
-            <span>Hard</span>
-        </button>
+            <div class="difficulty-selector">
+                <h2>Choose Your Level:</h2>
+                <div class="difficulty-buttons">
+                    <button class="diff-btn active" data-level="all">
+                        <span class="emoji">⭐</span>
+                        <span>All Levels</span>
+                    </button>
+                    <button class="diff-btn" data-level="easy">
+                        <span class="emoji">😊</span>
+                        <span>Easy</span>
+                    </button>
+                    <button class="diff-btn" data-level="medium">
+                        <span class="emoji">😐</span>
+                        <span>Medium</span>
+                    </button>
+                    <button class="diff-btn" data-level="hard">
+                        <span class="emoji">😤</span>
+                        <span>Hard</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="games-grid">
+                <div class="game-card">
+                    <div class="card-emoji">🎯</div>
+                    <h2>Match Words</h2>
+                    <p>Match words with their meanings</p>
+                    <a href="matching.html" class="play-btn" data-game="matching">
+                        ▶️ Play
+                    </a>
+                </div>
+
+                <div class="game-card">
+                    <div class="card-emoji">✍️</div>
+                    <h2>Spell It!</h2>
+                    <p>Listen and spell the word correctly</p>
+                    <a href="spelling.html" class="play-btn" data-game="spelling">
+                        ▶️ Play
+                    </a>
+                </div>
+
+                <div class="game-card">
+                    <div class="card-emoji">🔀</div>
+                    <h2>Word Scramble</h2>
+                    <p>Unscramble the letters to make a word</p>
+                    <a href="scramble.html" class="play-btn" data-game="scramble">
+                        ▶️ Play
+                    </a>
+                </div>
+
+                <div class="game-card">
+                    <div class="card-emoji">📚</div>
+                    <h2>Word List</h2>
+                    <p>Study all Halloween vocabulary</p>
+                    <a href="vocabulary.html" class="play-btn">
+                        👀 View
+                    </a>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <h2>How to Play</h2>
+                <div class="instruction-grid">
+                    <div class="instruction-item">
+                        <span class="inst-number">1</span>
+                        <p>Choose your level</p>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="inst-number">2</span>
+                        <p>Pick a game</p>
+                    </div>
+                    <div class="instruction-item">
+                        <span class="inst-number">3</span>
+                        <p>Learn new words!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>👻 Learn English with Fun! 🎃</p>
+            <p class="small">For ESL Students - Practice Halloween Vocabulary</p>
+        </footer>
     </div>
-</div>
 
-<div class="games-grid">
-    <div class="game-card">
-        <div class="card-emoji">🎯</div>
-        <h2>Match Words</h2>
-        <p>Match words with their meanings</p>
-        <a href="{{ url_for('matching_game') }}" class="play-btn" data-game="matching">
-            ▶️ Play
-        </a>
-    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const diffButtons = document.querySelectorAll('.diff-btn');
+        const playButtons = document.querySelectorAll('.play-btn[data-game]');
+        let selectedDifficulty = 'all';
 
-    <div class="game-card">
-        <div class="card-emoji">✍️</div>
-        <h2>Spell It!</h2>
-        <p>Listen and spell the word correctly</p>
-        <a href="{{ url_for('spelling_game') }}" class="play-btn" data-game="spelling">
-            ▶️ Play
-        </a>
-    </div>
-
-    <div class="game-card">
-        <div class="card-emoji">🔀</div>
-        <h2>Word Scramble</h2>
-        <p>Unscramble the letters to make a word</p>
-        <a href="{{ url_for('scramble_game') }}" class="play-btn" data-game="scramble">
-            ▶️ Play
-        </a>
-    </div>
-
-    <div class="game-card">
-        <div class="card-emoji">📚</div>
-        <h2>Word List</h2>
-        <p>Study all Halloween vocabulary</p>
-        <a href="{{ url_for('vocabulary_list') }}" class="play-btn">
-            👀 View
-        </a>
-    </div>
-</div>
-
-<div class="instructions">
-    <h2>How to Play</h2>
-    <div class="instruction-grid">
-        <div class="instruction-item">
-            <span class="inst-number">1</span>
-            <p>Choose your level</p>
-        </div>
-        <div class="instruction-item">
-            <span class="inst-number">2</span>
-            <p>Pick a game</p>
-        </div>
-        <div class="instruction-item">
-            <span class="inst-number">3</span>
-            <p>Learn new words!</p>
-        </div>
-    </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const diffButtons = document.querySelectorAll('.diff-btn');
-    const playButtons = document.querySelectorAll('.play-btn[data-game]');
-    let selectedDifficulty = 'all';
-
-    diffButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            diffButtons.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            selectedDifficulty = this.dataset.level;
-            
-            // Update play button links
-            playButtons.forEach(playBtn => {
-                const game = playBtn.dataset.game;
-                const baseUrl = playBtn.getAttribute('href').split('?')[0];
-                playBtn.setAttribute('href', `${baseUrl}?difficulty=${selectedDifficulty}`);
+        diffButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                diffButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedDifficulty = this.dataset.level;
+                
+                // Update play button links
+                playButtons.forEach(playBtn => {
+                    const game = playBtn.dataset.game;
+                    const baseUrl = playBtn.getAttribute('href').split('?')[0];
+                    playBtn.setAttribute('href', `${baseUrl}?difficulty=${selectedDifficulty}`);
+                });
             });
         });
     });
-});
-</script>
-{% endblock %}
+    </script>
+</body>
+</html>

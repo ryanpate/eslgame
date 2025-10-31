@@ -1,92 +1,150 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary List - Halloween Words</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🎃</span>
+                    <span>Halloween Vocab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">🏠 Home</a>
+                    <a href="vocabulary.html">📚 Words</a>
+                </div>
+            </nav>
+        </header>
 
-{% block title %}Vocabulary List - Halloween Words{% endblock %}
+        <main>
+            <div class="vocab-header">
+                <h1>📚 Halloween Vocabulary List</h1>
+                <p>Study these words to improve your English!</p>
+            </div>
 
-{% block content %}
-<div class="vocab-header">
-    <h1>📚 Halloween Vocabulary List</h1>
-    <p>Study these words to improve your English!</p>
-</div>
+            <div class="filter-section">
+                <h3>Filter by Level:</h3>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-level="all">All Words</button>
+                    <button class="filter-btn" data-level="easy">😊 Easy</button>
+                    <button class="filter-btn" data-level="medium">😐 Medium</button>
+                    <button class="filter-btn" data-level="hard">😤 Hard</button>
+                </div>
+            </div>
 
-<div class="filter-section">
-    <h3>Filter by Level:</h3>
-    <div class="filter-buttons">
-        <button class="filter-btn active" data-level="all">All Words</button>
-        <button class="filter-btn" data-level="easy">😊 Easy</button>
-        <button class="filter-btn" data-level="medium">😐 Medium</button>
-        <button class="filter-btn" data-level="hard">😤 Hard</button>
+            <div class="vocabulary-grid" id="vocabulary-grid"></div>
+
+            <div class="study-tips">
+                <h2>📝 Study Tips</h2>
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <span class="tip-emoji">🔄</span>
+                        <h3>Practice Daily</h3>
+                        <p>Review these words every day for 10 minutes</p>
+                    </div>
+                    <div class="tip-card">
+                        <span class="tip-emoji">✍️</span>
+                        <h3>Write Sentences</h3>
+                        <p>Make your own sentences with each word</p>
+                    </div>
+                    <div class="tip-card">
+                        <span class="tip-emoji">🗣️</span>
+                        <h3>Say It Out Loud</h3>
+                        <p>Practice pronunciation by saying the words</p>
+                    </div>
+                    <div class="tip-card">
+                        <span class="tip-emoji">🎮</span>
+                        <h3>Play Games</h3>
+                        <p>Use the games to test your knowledge!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="index.html" class="btn btn-primary">🎮 Play Games</a>
+            </div>
+        </main>
+
+        <footer>
+            <p>👻 Learn English with Fun! 🎃</p>
+            <p class="small">For ESL Students - Practice Halloween Vocabulary</p>
+        </footer>
     </div>
-</div>
 
-<div class="vocabulary-grid">
-    {% for word, data in words.items()|sort %}
-    <div class="vocab-card" data-difficulty="{{ data.difficulty }}">
-        <div class="vocab-emoji">{{ data.emoji }}</div>
-        <h3 class="vocab-word">{{ word }}</h3>
-        <p class="vocab-definition">{{ data.definition }}</p>
-        <p class="vocab-hint">💡 {{ data.hint }}</p>
-        <span class="vocab-difficulty difficulty-{{ data.difficulty }}">
-            {% if data.difficulty == 'easy' %}😊 Easy
-            {% elif data.difficulty == 'medium' %}😐 Medium
-            {% else %}😤 Hard{% endif %}
-        </span>
-    </div>
-    {% endfor %}
-</div>
-
-<div class="study-tips">
-    <h2>📝 Study Tips</h2>
-    <div class="tips-grid">
-        <div class="tip-card">
-            <span class="tip-emoji">🔄</span>
-            <h3>Practice Daily</h3>
-            <p>Review these words every day for 10 minutes</p>
-        </div>
-        <div class="tip-card">
-            <span class="tip-emoji">✍️</span>
-            <h3>Write Sentences</h3>
-            <p>Make your own sentences with each word</p>
-        </div>
-        <div class="tip-card">
-            <span class="tip-emoji">🗣️</span>
-            <h3>Say It Out Loud</h3>
-            <p>Practice pronunciation by saying the words</p>
-        </div>
-        <div class="tip-card">
-            <span class="tip-emoji">🎮</span>
-            <h3>Play Games</h3>
-            <p>Use the games to test your knowledge!</p>
-        </div>
-    </div>
-</div>
-
-<div class="action-buttons">
-    <a href="{{ url_for('index') }}" class="btn btn-primary">🎮 Play Games</a>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const vocabCards = document.querySelectorAll('.vocab-card');
-
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            // Update active button
-            filterButtons.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-
-            const level = this.dataset.level;
-
-            // Filter cards
-            vocabCards.forEach(card => {
-                if (level === 'all' || card.dataset.difficulty === level) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+    <script src="js/vocabulary.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            displayVocabulary();
+            setupFilters();
         });
-    });
-});
-</script>
-{% endblock %}
+
+        function displayVocabulary() {
+            const grid = document.getElementById('vocabulary-grid');
+            const sortedWords = Object.keys(HALLOWEEN_WORDS).sort();
+            
+            sortedWords.forEach(word => {
+                const data = HALLOWEEN_WORDS[word];
+                const card = createVocabCard(word, data);
+                grid.appendChild(card);
+            });
+        }
+
+        function createVocabCard(word, data) {
+            const card = document.createElement('div');
+            card.className = 'vocab-card';
+            card.dataset.difficulty = data.difficulty;
+            
+            let difficultyLabel = '';
+            let difficultyClass = '';
+            
+            if (data.difficulty === 'easy') {
+                difficultyLabel = '😊 Easy';
+                difficultyClass = 'difficulty-easy';
+            } else if (data.difficulty === 'medium') {
+                difficultyLabel = '😐 Medium';
+                difficultyClass = 'difficulty-medium';
+            } else {
+                difficultyLabel = '😤 Hard';
+                difficultyClass = 'difficulty-hard';
+            }
+            
+            card.innerHTML = `
+                <div class="vocab-emoji">${data.emoji}</div>
+                <h3 class="vocab-word">${word}</h3>
+                <p class="vocab-definition">${data.definition}</p>
+                <p class="vocab-hint">💡 ${data.hint}</p>
+                <span class="vocab-difficulty ${difficultyClass}">${difficultyLabel}</span>
+            `;
+            
+            return card;
+        }
+
+        function setupFilters() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const vocabCards = document.querySelectorAll('.vocab-card');
+
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const level = this.dataset.level;
+
+                    vocabCards.forEach(card => {
+                        if (level === 'all' || card.dataset.difficulty === level) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        }
+    </script>
+</body>
+</html>

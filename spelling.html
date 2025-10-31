@@ -1,176 +1,200 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spell It! - Halloween Vocabulary</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🎃</span>
+                    <span>Halloween Vocab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">🏠 Home</a>
+                    <a href="vocabulary.html">📚 Words</a>
+                </div>
+            </nav>
+        </header>
 
-{% block title %}Spell It! - Halloween Vocabulary{% endblock %}
+        <main>
+            <div class="game-header">
+                <h1>✍️ Spell It!</h1>
+                <p>Look at the picture and hint, then spell the word!</p>
+                <div class="game-stats">
+                    <span>Score: <span id="score">0</span></span>
+                    <span>Word: <span id="current">1</span>/<span id="total">0</span></span>
+                </div>
+            </div>
 
-{% block content %}
-<div class="game-header">
-    <h1>✍️ Spell It!</h1>
-    <p>Look at the picture and hint, then spell the word!</p>
-    <div class="game-stats">
-        <span>Score: <span id="score">0</span></span>
-        <span>Word: <span id="current">1</span>/<span id="total">0</span></span>
+            <div id="spelling-game">
+                <div class="word-display">
+                    <div class="word-emoji" id="word-emoji">🎃</div>
+                    <div class="word-hint" id="word-hint">Loading...</div>
+                    
+                    <div class="spelling-input">
+                        <input type="text" id="answer-input" placeholder="Type the word here..." autocomplete="off" autofocus>
+                        <button class="btn btn-primary" id="check-btn">Check ✓</button>
+                    </div>
+
+                    <div class="help-section">
+                        <button class="btn btn-secondary" id="hint-btn">💡 Show Hint</button>
+                        <button class="btn btn-secondary" id="skip-btn">⏭️ Skip</button>
+                    </div>
+
+                    <div id="extra-hint" class="extra-hint hidden"></div>
+                </div>
+            </div>
+
+            <div id="result-popup" class="popup hidden">
+                <div class="popup-content">
+                    <span class="popup-emoji"></span>
+                    <h2 class="popup-title"></h2>
+                    <p class="popup-message"></p>
+                    <div class="popup-buttons">
+                        <button class="btn btn-primary" onclick="nextWord()">Next Word ➡️</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="complete-popup" class="popup hidden">
+                <div class="popup-content celebration">
+                    <h2>🎉 You Did It! 🎉</h2>
+                    <p>You completed all the words!</p>
+                    <div class="final-score">
+                        Final Score: <span id="final-score">0</span>
+                    </div>
+                    <div class="popup-buttons">
+                        <a href="#" id="play-again-btn" class="btn btn-primary">Play Again</a>
+                        <a href="index.html" class="btn btn-secondary">Home</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>👻 Learn English with Fun! 🎃</p>
+            <p class="small">For ESL Students - Practice Halloween Vocabulary</p>
+        </footer>
     </div>
-</div>
 
-<div id="spelling-game">
-    <div class="word-display">
-        <div class="word-emoji" id="word-emoji">🎃</div>
-        <div class="word-hint" id="word-hint">Loading...</div>
-        
-        <div class="spelling-input">
-            <input type="text" id="answer-input" placeholder="Type the word here..." autocomplete="off" autofocus>
-            <button class="btn btn-primary" id="check-btn">Check ✓</button>
-        </div>
+    <script src="js/vocabulary.js"></script>
+    <script>
+        let allWords = {};
+        let wordList = [];
+        let currentIndex = 0;
+        let score = 0;
+        let currentWord = '';
+        let currentDifficulty = 'all';
 
-        <div class="help-section">
-            <button class="btn btn-secondary" id="hint-btn">💡 Show Hint</button>
-            <button class="btn btn-secondary" id="skip-btn">⏭️ Skip</button>
-        </div>
+        document.addEventListener('DOMContentLoaded', function() {
+            currentDifficulty = getDifficultyFromURL();
+            allWords = getWordsByDifficulty(currentDifficulty);
+            wordList = Object.keys(allWords);
+            document.getElementById('total').textContent = wordList.length;
+            document.getElementById('play-again-btn').href = `spelling.html?difficulty=${currentDifficulty}`;
+            
+            loadWord();
 
-        <div id="extra-hint" class="extra-hint hidden"></div>
-    </div>
-</div>
+            document.getElementById('check-btn').addEventListener('click', checkAnswer);
+            document.getElementById('answer-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+            document.getElementById('hint-btn').addEventListener('click', showExtraHint);
+            document.getElementById('skip-btn').addEventListener('click', skipWord);
+        });
 
-<div id="result-popup" class="popup hidden">
-    <div class="popup-content">
-        <span class="popup-emoji"></span>
-        <h2 class="popup-title"></h2>
-        <p class="popup-message"></p>
-        <div class="popup-buttons">
-            <button class="btn btn-primary" onclick="nextWord()">Next Word ➡️</button>
-        </div>
-    </div>
-</div>
+        function loadWord() {
+            if (currentIndex >= wordList.length) {
+                showComplete();
+                return;
+            }
 
-<div id="complete-popup" class="popup hidden">
-    <div class="popup-content celebration">
-        <h2>🎉 You Did It! 🎉</h2>
-        <p>You completed all the words!</p>
-        <div class="final-score">
-            Final Score: <span id="final-score">0</span>
-        </div>
-        <div class="popup-buttons">
-            <a href="{{ url_for('spelling_game', difficulty=difficulty) }}" class="btn btn-primary">Play Again</a>
-            <a href="{{ url_for('index') }}" class="btn btn-secondary">Home</a>
-        </div>
-    </div>
-</div>
+            currentWord = wordList[currentIndex];
+            const wordData = allWords[currentWord];
 
-<script>
-const allWords = {{ words|tojson }};
-const wordList = Object.keys(allWords);
-let currentIndex = 0;
-let score = 0;
-let currentWord = '';
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('total').textContent = wordList.length;
-    loadWord();
-
-    document.getElementById('check-btn').addEventListener('click', checkAnswer);
-    document.getElementById('answer-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            checkAnswer();
+            document.getElementById('word-emoji').textContent = wordData.emoji;
+            document.getElementById('word-hint').textContent = wordData.definition;
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').focus();
+            document.getElementById('extra-hint').classList.add('hidden');
+            document.getElementById('current').textContent = currentIndex + 1;
         }
-    });
-    document.getElementById('hint-btn').addEventListener('click', showExtraHint);
-    document.getElementById('skip-btn').addEventListener('click', skipWord);
-});
 
-function loadWord() {
-    if (currentIndex >= wordList.length) {
-        showComplete();
-        return;
-    }
+        function checkAnswer() {
+            const answer = document.getElementById('answer-input').value.trim().toLowerCase();
+            
+            if (!answer) {
+                alert('Please type a word!');
+                return;
+            }
 
-    currentWord = wordList[currentIndex];
-    const wordData = allWords[currentWord];
-
-    document.getElementById('word-emoji').textContent = wordData.emoji;
-    document.getElementById('word-hint').textContent = wordData.definition;
-    document.getElementById('answer-input').value = '';
-    document.getElementById('answer-input').focus();
-    document.getElementById('extra-hint').classList.add('hidden');
-    document.getElementById('current').textContent = currentIndex + 1;
-}
-
-function checkAnswer() {
-    const answer = document.getElementById('answer-input').value.trim().toLowerCase();
-    
-    if (!answer) {
-        alert('Please type a word!');
-        return;
-    }
-
-    fetch('/api/check_answer', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            word: currentWord,
-            answer: answer
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        showResult(data.correct, data.word);
-        if (data.correct) {
-            score += 10;
-            updateScore();
+            const correct = answer === currentWord;
+            showResult(correct, currentWord);
+            
+            if (correct) {
+                score += 10;
+                updateScore();
+            }
         }
-    });
-}
 
-function showResult(correct, word) {
-    const popup = document.getElementById('result-popup');
-    const emoji = popup.querySelector('.popup-emoji');
-    const title = popup.querySelector('.popup-title');
-    const message = popup.querySelector('.popup-message');
-    const wordData = allWords[word];
+        function showResult(correct, word) {
+            const popup = document.getElementById('result-popup');
+            const emoji = popup.querySelector('.popup-emoji');
+            const title = popup.querySelector('.popup-title');
+            const message = popup.querySelector('.popup-message');
+            const wordData = allWords[word];
 
-    if (correct) {
-        emoji.textContent = wordData.emoji + ' ✅';
-        title.textContent = 'Perfect!';
-        message.textContent = `"${word}" is correct! ${wordData.hint}`;
-        popup.classList.add('success');
-    } else {
-        emoji.textContent = '❌';
-        title.textContent = 'Not Quite!';
-        message.textContent = `The correct spelling is "${word}". Try to remember it!`;
-        popup.classList.remove('success');
-    }
+            if (correct) {
+                emoji.textContent = wordData.emoji + ' ✅';
+                title.textContent = 'Perfect!';
+                message.textContent = `"${word}" is correct! ${wordData.hint}`;
+                popup.classList.add('success');
+            } else {
+                emoji.textContent = '❌';
+                title.textContent = 'Not Quite!';
+                message.textContent = `The correct spelling is "${word}". Try to remember it!`;
+                popup.classList.remove('success');
+            }
 
-    popup.classList.remove('hidden');
-}
+            popup.classList.remove('hidden');
+        }
 
-function nextWord() {
-    document.getElementById('result-popup').classList.add('hidden');
-    currentIndex++;
-    loadWord();
-}
+        function nextWord() {
+            document.getElementById('result-popup').classList.add('hidden');
+            currentIndex++;
+            loadWord();
+        }
 
-function showExtraHint() {
-    const wordData = allWords[currentWord];
-    const hintElement = document.getElementById('extra-hint');
-    hintElement.textContent = `💡 ${wordData.hint}`;
-    hintElement.classList.remove('hidden');
-}
+        function showExtraHint() {
+            const wordData = allWords[currentWord];
+            const hintElement = document.getElementById('extra-hint');
+            hintElement.textContent = `💡 ${wordData.hint}`;
+            hintElement.classList.remove('hidden');
+        }
 
-function skipWord() {
-    if (confirm('Skip this word? You won\'t get points for it.')) {
-        nextWord();
-    }
-}
+        function skipWord() {
+            if (confirm('Skip this word? You won\'t get points for it.')) {
+                nextWord();
+            }
+        }
 
-function updateScore() {
-    document.getElementById('score').textContent = score;
-}
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
 
-function showComplete() {
-    const popup = document.getElementById('complete-popup');
-    document.getElementById('final-score').textContent = score;
-    popup.classList.remove('hidden');
-}
-</script>
-{% endblock %}
+        function showComplete() {
+            saveProgress('spelling', score);
+            const popup = document.getElementById('complete-popup');
+            document.getElementById('final-score').textContent = score;
+            popup.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

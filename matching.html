@@ -1,187 +1,245 @@
-{% extends "base.html" %}
-
-{% block title %}Match Words - Halloween Vocabulary{% endblock %}
-
-{% block content %}
-<div class="game-header">
-    <h1>🎯 Match the Words!</h1>
-    <p>Click a word, then click its definition</p>
-    <div class="game-stats">
-        <span>Score: <span id="score">0</span></span>
-        <span>Matches: <span id="matches">0</span>/{{ words|length }}</span>
-    </div>
-</div>
-
-<div id="matching-game">
-    <div class="matching-grid">
-        <div class="column" id="words-column">
-            <h3>Words 📝</h3>
-            <div class="cards-container">
-                {% for word in words.keys() %}
-                <div class="match-card word-card" data-word="{{ word }}">
-                    <span class="card-emoji">{{ words[word].emoji }}</span>
-                    <span class="card-text">{{ word }}</span>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Words - Halloween Vocabulary</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🎃</span>
+                    <span>Halloween Vocab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">🏠 Home</a>
+                    <a href="vocabulary.html">📚 Words</a>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
+            </nav>
+        </header>
 
-        <div class="column" id="definitions-column">
-            <h3>Definitions 📖</h3>
-            <div class="cards-container">
-                {% for word in shuffled_defs %}
-                <div class="match-card definition-card" data-word="{{ word }}">
-                    <span class="card-text">{{ words[word].definition }}</span>
+        <main>
+            <div class="game-header">
+                <h1>🎯 Match the Words!</h1>
+                <p>Click a word, then click its definition</p>
+                <div class="game-stats">
+                    <span>Score: <span id="score">0</span></span>
+                    <span>Matches: <span id="matches">0</span>/<span id="total">6</span></span>
                 </div>
-                {% endfor %}
             </div>
-        </div>
+
+            <div id="matching-game">
+                <div class="matching-grid">
+                    <div class="column" id="words-column">
+                        <h3>Words 📝</h3>
+                        <div class="cards-container" id="words-container"></div>
+                    </div>
+
+                    <div class="column" id="definitions-column">
+                        <h3>Definitions 📖</h3>
+                        <div class="cards-container" id="definitions-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="result-popup" class="popup hidden">
+                <div class="popup-content">
+                    <span class="popup-emoji"></span>
+                    <h2 class="popup-title"></h2>
+                    <p class="popup-message"></p>
+                    <button class="btn btn-primary" onclick="closePopup()">Continue</button>
+                </div>
+            </div>
+
+            <div id="complete-popup" class="popup hidden">
+                <div class="popup-content celebration">
+                    <h2>🎉 Amazing! 🎉</h2>
+                    <p>You matched all the words!</p>
+                    <div class="final-score">
+                        Final Score: <span id="final-score">0</span>
+                    </div>
+                    <div class="popup-buttons">
+                        <a href="#" id="play-again-btn" class="btn btn-primary">Play Again</a>
+                        <a href="index.html" class="btn btn-secondary">Home</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>👻 Learn English with Fun! 🎃</p>
+            <p class="small">For ESL Students - Practice Halloween Vocabulary</p>
+        </footer>
     </div>
-</div>
 
-<div id="result-popup" class="popup hidden">
-    <div class="popup-content">
-        <span class="popup-emoji"></span>
-        <h2 class="popup-title"></h2>
-        <p class="popup-message"></p>
-        <button class="btn btn-primary" onclick="closePopup()">Continue</button>
-    </div>
-</div>
+    <script src="js/vocabulary.js"></script>
+    <script>
+        let selectedWord = null;
+        let selectedDefinition = null;
+        let score = 0;
+        let matches = 0;
+        let totalMatches = 6;
+        let currentDifficulty = 'all';
+        let gameWords = {};
 
-<div id="complete-popup" class="popup hidden">
-    <div class="popup-content celebration">
-        <h2>🎉 Amazing! 🎉</h2>
-        <p>You matched all the words!</p>
-        <div class="final-score">
-            Final Score: <span id="final-score">0</span>
-        </div>
-        <div class="popup-buttons">
-            <a href="{{ url_for('matching_game', difficulty=difficulty) }}" class="btn btn-primary">Play Again</a>
-            <a href="{{ url_for('index') }}" class="btn btn-secondary">Home</a>
-        </div>
-    </div>
-</div>
+        document.addEventListener('DOMContentLoaded', function() {
+            currentDifficulty = getDifficultyFromURL();
+            initializeGame();
+        });
 
-<script>
-let selectedWord = null;
-let selectedDefinition = null;
-let score = 0;
-let matches = 0;
-const totalMatches = {{ words|length }};
-const words = {{ words|tojson }};
+        function initializeGame() {
+            const allWords = getWordsByDifficulty(currentDifficulty);
+            const selectedWordList = getRandomWords(allWords, 6);
+            
+            totalMatches = selectedWordList.length;
+            document.getElementById('total').textContent = totalMatches;
 
-document.addEventListener('DOMContentLoaded', function() {
-    const wordCards = document.querySelectorAll('.word-card');
-    const defCards = document.querySelectorAll('.definition-card');
+            gameWords = {};
+            selectedWordList.forEach(word => {
+                gameWords[word] = allWords[word];
+            });
 
-    wordCards.forEach(card => {
-        card.addEventListener('click', () => selectCard(card, 'word'));
-    });
+            // Create word cards
+            const wordsContainer = document.getElementById('words-container');
+            wordsContainer.innerHTML = '';
+            selectedWordList.forEach(word => {
+                const card = createWordCard(word, gameWords[word]);
+                wordsContainer.appendChild(card);
+            });
 
-    defCards.forEach(card => {
-        card.addEventListener('click', () => selectCard(card, 'definition'));
-    });
-});
+            // Create definition cards (shuffled)
+            const definitionsContainer = document.getElementById('definitions-container');
+            definitionsContainer.innerHTML = '';
+            const shuffledWords = shuffleArray(selectedWordList);
+            shuffledWords.forEach(word => {
+                const card = createDefinitionCard(word, gameWords[word]);
+                definitionsContainer.appendChild(card);
+            });
 
-function selectCard(card, type) {
-    if (card.classList.contains('matched')) return;
-
-    if (type === 'word') {
-        // Deselect previous word
-        if (selectedWord) {
-            selectedWord.classList.remove('selected');
+            // Update play again button
+            document.getElementById('play-again-btn').href = `matching.html?difficulty=${currentDifficulty}`;
         }
-        selectedWord = card;
-        card.classList.add('selected');
-    } else {
-        // Deselect previous definition
-        if (selectedDefinition) {
-            selectedDefinition.classList.remove('selected');
+
+        function createWordCard(word, data) {
+            const card = document.createElement('div');
+            card.className = 'match-card word-card';
+            card.dataset.word = word;
+            card.innerHTML = `
+                <span class="card-emoji">${data.emoji}</span>
+                <span class="card-text">${word}</span>
+            `;
+            card.addEventListener('click', () => selectCard(card, 'word'));
+            return card;
         }
-        selectedDefinition = card;
-        card.classList.add('selected');
-    }
 
-    // Check if both are selected
-    if (selectedWord && selectedDefinition) {
-        checkMatch();
-    }
-}
-
-function checkMatch() {
-    const word = selectedWord.dataset.word;
-    const definition = selectedDefinition.dataset.word;
-
-    if (word === definition) {
-        // Correct match!
-        selectedWord.classList.add('matched');
-        selectedDefinition.classList.add('matched');
-        selectedWord.classList.remove('selected');
-        selectedDefinition.classList.remove('selected');
-        
-        score += 10;
-        matches++;
-        
-        updateStats();
-        showResult(true, word);
-        
-        if (matches === totalMatches) {
-            setTimeout(showComplete, 1000);
+        function createDefinitionCard(word, data) {
+            const card = document.createElement('div');
+            card.className = 'match-card definition-card';
+            card.dataset.word = word;
+            card.innerHTML = `
+                <span class="card-text">${data.definition}</span>
+            `;
+            card.addEventListener('click', () => selectCard(card, 'definition'));
+            return card;
         }
-    } else {
-        // Wrong match
-        selectedWord.classList.add('wrong');
-        selectedDefinition.classList.add('wrong');
-        
-        setTimeout(() => {
-            selectedWord.classList.remove('wrong', 'selected');
-            selectedDefinition.classList.remove('wrong', 'selected');
+
+        function selectCard(card, type) {
+            if (card.classList.contains('matched')) return;
+
+            if (type === 'word') {
+                if (selectedWord) {
+                    selectedWord.classList.remove('selected');
+                }
+                selectedWord = card;
+                card.classList.add('selected');
+            } else {
+                if (selectedDefinition) {
+                    selectedDefinition.classList.remove('selected');
+                }
+                selectedDefinition = card;
+                card.classList.add('selected');
+            }
+
+            if (selectedWord && selectedDefinition) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const word = selectedWord.dataset.word;
+            const definition = selectedDefinition.dataset.word;
+
+            if (word === definition) {
+                selectedWord.classList.add('matched');
+                selectedDefinition.classList.add('matched');
+                selectedWord.classList.remove('selected');
+                selectedDefinition.classList.remove('selected');
+                
+                score += 10;
+                matches++;
+                
+                updateStats();
+                showResult(true, word);
+                
+                if (matches === totalMatches) {
+                    setTimeout(showComplete, 1000);
+                }
+            } else {
+                selectedWord.classList.add('wrong');
+                selectedDefinition.classList.add('wrong');
+                
+                setTimeout(() => {
+                    selectedWord.classList.remove('wrong', 'selected');
+                    selectedDefinition.classList.remove('wrong', 'selected');
+                }, 800);
+                
+                showResult(false, word);
+            }
+            
             selectedWord = null;
             selectedDefinition = null;
-        }, 800);
-        
-        showResult(false, word);
-    }
-    
-    selectedWord = null;
-    selectedDefinition = null;
-}
+        }
 
-function updateStats() {
-    document.getElementById('score').textContent = score;
-    document.getElementById('matches').textContent = matches;
-}
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('matches').textContent = matches;
+        }
 
-function showResult(correct, word) {
-    const popup = document.getElementById('result-popup');
-    const emoji = popup.querySelector('.popup-emoji');
-    const title = popup.querySelector('.popup-title');
-    const message = popup.querySelector('.popup-message');
+        function showResult(correct, word) {
+            const popup = document.getElementById('result-popup');
+            const emoji = popup.querySelector('.popup-emoji');
+            const title = popup.querySelector('.popup-title');
+            const message = popup.querySelector('.popup-message');
 
-    if (correct) {
-        emoji.textContent = words[word].emoji;
-        title.textContent = '✅ Correct!';
-        message.textContent = `"${word}" - ${words[word].hint}`;
-        popup.classList.add('success');
-    } else {
-        emoji.textContent = '❌';
-        title.textContent = 'Try Again!';
-        message.textContent = 'That\'s not the right match. Keep trying!';
-        popup.classList.remove('success');
-    }
+            if (correct) {
+                emoji.textContent = gameWords[word].emoji;
+                title.textContent = '✅ Correct!';
+                message.textContent = `"${word}" - ${gameWords[word].hint}`;
+                popup.classList.add('success');
+            } else {
+                emoji.textContent = '❌';
+                title.textContent = 'Try Again!';
+                message.textContent = "That's not the right match. Keep trying!";
+                popup.classList.remove('success');
+            }
 
-    popup.classList.remove('hidden');
-    setTimeout(closePopup, 2000);
-}
+            popup.classList.remove('hidden');
+            setTimeout(closePopup, 2000);
+        }
 
-function closePopup() {
-    document.getElementById('result-popup').classList.add('hidden');
-}
+        function closePopup() {
+            document.getElementById('result-popup').classList.add('hidden');
+        }
 
-function showComplete() {
-    const popup = document.getElementById('complete-popup');
-    document.getElementById('final-score').textContent = score;
-    popup.classList.remove('hidden');
-}
-</script>
-{% endblock %}
+        function showComplete() {
+            saveProgress('matching', score);
+            const popup = document.getElementById('complete-popup');
+            document.getElementById('final-score').textContent = score;
+            popup.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

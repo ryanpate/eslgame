@@ -1,210 +1,241 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Scramble - Halloween Vocabulary</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🎃</span>
+                    <span>Halloween Vocab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">🏠 Home</a>
+                    <a href="vocabulary.html">📚 Words</a>
+                </div>
+            </nav>
+        </header>
 
-{% block title %}Word Scramble - Halloween Vocabulary{% endblock %}
+        <main>
+            <div class="game-header">
+                <h1>🔀 Word Scramble!</h1>
+                <p>Unscramble the letters to make a word!</p>
+                <div class="game-stats">
+                    <span>Score: <span id="score">0</span></span>
+                    <span>Word: <span id="current">1</span>/<span id="total">0</span></span>
+                </div>
+            </div>
 
-{% block content %}
-<div class="game-header">
-    <h1>🔀 Word Scramble!</h1>
-    <p>Unscramble the letters to make a word!</p>
-    <div class="game-stats">
-        <span>Score: <span id="score">0</span></span>
-        <span>Word: <span id="current">1</span>/<span id="total">0</span></span>
+            <div id="scramble-game">
+                <div class="word-display">
+                    <div class="word-emoji" id="word-emoji">🎃</div>
+                    
+                    <div class="scrambled-letters" id="scrambled-letters"></div>
+
+                    <div class="word-hint" id="word-hint">Loading...</div>
+                    
+                    <div class="spelling-input">
+                        <input type="text" id="answer-input" placeholder="Type your answer here..." autocomplete="off" autofocus>
+                        <button class="btn btn-primary" id="check-btn">Check ✓</button>
+                    </div>
+
+                    <div class="help-section">
+                        <button class="btn btn-secondary" id="shuffle-btn">🔄 Shuffle Letters</button>
+                        <button class="btn btn-secondary" id="hint-btn">💡 Show Hint</button>
+                        <button class="btn btn-secondary" id="skip-btn">⏭️ Skip</button>
+                    </div>
+
+                    <div id="extra-hint" class="extra-hint hidden"></div>
+                </div>
+            </div>
+
+            <div id="result-popup" class="popup hidden">
+                <div class="popup-content">
+                    <span class="popup-emoji"></span>
+                    <h2 class="popup-title"></h2>
+                    <p class="popup-message"></p>
+                    <div class="popup-buttons">
+                        <button class="btn btn-primary" onclick="nextWord()">Next Word ➡️</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="complete-popup" class="popup hidden">
+                <div class="popup-content celebration">
+                    <h2>🎉 Fantastic! 🎉</h2>
+                    <p>You unscrambled all the words!</p>
+                    <div class="final-score">
+                        Final Score: <span id="final-score">0</span>
+                    </div>
+                    <div class="popup-buttons">
+                        <a href="#" id="play-again-btn" class="btn btn-primary">Play Again</a>
+                        <a href="index.html" class="btn btn-secondary">Home</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>👻 Learn English with Fun! 🎃</p>
+            <p class="small">For ESL Students - Practice Halloween Vocabulary</p>
+        </footer>
     </div>
-</div>
 
-<div id="scramble-game">
-    <div class="word-display">
-        <div class="word-emoji" id="word-emoji">🎃</div>
-        
-        <div class="scrambled-letters" id="scrambled-letters">
-            <!-- Letters will be added here -->
-        </div>
+    <script src="js/vocabulary.js"></script>
+    <script>
+        let allWords = {};
+        let wordList = [];
+        let currentIndex = 0;
+        let score = 0;
+        let currentWord = '';
+        let scrambledWord = '';
+        let currentDifficulty = 'all';
 
-        <div class="word-hint" id="word-hint">Loading...</div>
-        
-        <div class="spelling-input">
-            <input type="text" id="answer-input" placeholder="Type your answer here..." autocomplete="off" autofocus>
-            <button class="btn btn-primary" id="check-btn">Check ✓</button>
-        </div>
+        document.addEventListener('DOMContentLoaded', function() {
+            currentDifficulty = getDifficultyFromURL();
+            allWords = getWordsByDifficulty(currentDifficulty);
+            wordList = Object.keys(allWords);
+            document.getElementById('total').textContent = wordList.length;
+            document.getElementById('play-again-btn').href = `scramble.html?difficulty=${currentDifficulty}`;
+            
+            loadWord();
 
-        <div class="help-section">
-            <button class="btn btn-secondary" id="shuffle-btn">🔄 Shuffle Letters</button>
-            <button class="btn btn-secondary" id="hint-btn">💡 Show Hint</button>
-            <button class="btn btn-secondary" id="skip-btn">⏭️ Skip</button>
-        </div>
+            document.getElementById('check-btn').addEventListener('click', checkAnswer);
+            document.getElementById('answer-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+            document.getElementById('hint-btn').addEventListener('click', showExtraHint);
+            document.getElementById('skip-btn').addEventListener('click', skipWord);
+            document.getElementById('shuffle-btn').addEventListener('click', shuffleLetters);
+        });
 
-        <div id="extra-hint" class="extra-hint hidden"></div>
-    </div>
-</div>
-
-<div id="result-popup" class="popup hidden">
-    <div class="popup-content">
-        <span class="popup-emoji"></span>
-        <h2 class="popup-title"></h2>
-        <p class="popup-message"></p>
-        <div class="popup-buttons">
-            <button class="btn btn-primary" onclick="nextWord()">Next Word ➡️</button>
-        </div>
-    </div>
-</div>
-
-<div id="complete-popup" class="popup hidden">
-    <div class="popup-content celebration">
-        <h2>🎉 Fantastic! 🎉</h2>
-        <p>You unscrambled all the words!</p>
-        <div class="final-score">
-            Final Score: <span id="final-score">0</span>
-        </div>
-        <div class="popup-buttons">
-            <a href="{{ url_for('scramble_game', difficulty=difficulty) }}" class="btn btn-primary">Play Again</a>
-            <a href="{{ url_for('index') }}" class="btn btn-secondary">Home</a>
-        </div>
-    </div>
-</div>
-
-<script>
-const allWords = {{ words|tojson }};
-const wordList = Object.keys(allWords);
-let currentIndex = 0;
-let score = 0;
-let currentWord = '';
-let scrambledWord = '';
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('total').textContent = wordList.length;
-    loadWord();
-
-    document.getElementById('check-btn').addEventListener('click', checkAnswer);
-    document.getElementById('answer-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            checkAnswer();
+        function scrambleWord(word) {
+            let letters = word.split('');
+            for (let i = letters.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [letters[i], letters[j]] = [letters[j], letters[i]];
+            }
+            let scrambled = letters.join('');
+            if (scrambled === word && word.length > 2) {
+                return scrambleWord(word);
+            }
+            return scrambled;
         }
-    });
-    document.getElementById('hint-btn').addEventListener('click', showExtraHint);
-    document.getElementById('skip-btn').addEventListener('click', skipWord);
-    document.getElementById('shuffle-btn').addEventListener('click', shuffleLetters);
-});
 
-function scrambleWord(word) {
-    let letters = word.split('');
-    // Shuffle letters
-    for (let i = letters.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [letters[i], letters[j]] = [letters[j], letters[i]];
-    }
-    // Make sure it's not the same as original
-    let scrambled = letters.join('');
-    if (scrambled === word && word.length > 2) {
-        return scrambleWord(word); // Try again
-    }
-    return scrambled;
-}
+        function loadWord() {
+            if (currentIndex >= wordList.length) {
+                showComplete();
+                return;
+            }
 
-function loadWord() {
-    if (currentIndex >= wordList.length) {
-        showComplete();
-        return;
-    }
+            currentWord = wordList[currentIndex];
+            const wordData = allWords[currentWord];
 
-    currentWord = wordList[currentIndex];
-    const wordData = allWords[currentWord];
+            scrambledWord = scrambleWord(currentWord);
+            displayScrambledLetters(scrambledWord);
 
-    scrambledWord = scrambleWord(currentWord);
-    displayScrambledLetters(scrambledWord);
+            document.getElementById('word-emoji').textContent = wordData.emoji;
+            document.getElementById('word-hint').textContent = wordData.definition;
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').focus();
+            document.getElementById('extra-hint').classList.add('hidden');
+            document.getElementById('current').textContent = currentIndex + 1;
+        }
 
-    document.getElementById('word-emoji').textContent = wordData.emoji;
-    document.getElementById('word-hint').textContent = `${wordData.definition}`;
-    document.getElementById('answer-input').value = '';
-    document.getElementById('answer-input').focus();
-    document.getElementById('extra-hint').classList.add('hidden');
-    document.getElementById('current').textContent = currentIndex + 1;
-}
+        function displayScrambledLetters(word) {
+            const container = document.getElementById('scrambled-letters');
+            container.innerHTML = '';
+            
+            word.split('').forEach(letter => {
+                const letterBox = document.createElement('div');
+                letterBox.className = 'letter-box';
+                letterBox.textContent = letter.toUpperCase();
+                container.appendChild(letterBox);
+            });
+        }
 
-function displayScrambledLetters(word) {
-    const container = document.getElementById('scrambled-letters');
-    container.innerHTML = '';
-    
-    word.split('').forEach(letter => {
-        const letterBox = document.createElement('div');
-        letterBox.className = 'letter-box';
-        letterBox.textContent = letter.toUpperCase();
-        container.appendChild(letterBox);
-    });
-}
+        function shuffleLetters() {
+            scrambledWord = scrambleWord(currentWord);
+            displayScrambledLetters(scrambledWord);
+        }
 
-function shuffleLetters() {
-    scrambledWord = scrambleWord(currentWord);
-    displayScrambledLetters(scrambledWord);
-}
+        function checkAnswer() {
+            const answer = document.getElementById('answer-input').value.trim().toLowerCase();
+            
+            if (!answer) {
+                alert('Please type a word!');
+                return;
+            }
 
-function checkAnswer() {
-    const answer = document.getElementById('answer-input').value.trim().toLowerCase();
-    
-    if (!answer) {
-        alert('Please type a word!');
-        return;
-    }
+            const correct = answer === currentWord;
+            showResult(correct, currentWord);
+            
+            if (correct) {
+                score += 10;
+                updateScore();
+            }
+        }
 
-    const correct = answer === currentWord;
-    showResult(correct, currentWord);
-    
-    if (correct) {
-        score += 10;
-        updateScore();
-    }
-}
+        function showResult(correct, word) {
+            const popup = document.getElementById('result-popup');
+            const emoji = popup.querySelector('.popup-emoji');
+            const title = popup.querySelector('.popup-title');
+            const message = popup.querySelector('.popup-message');
+            const wordData = allWords[word];
 
-function showResult(correct, word) {
-    const popup = document.getElementById('result-popup');
-    const emoji = popup.querySelector('.popup-emoji');
-    const title = popup.querySelector('.popup-title');
-    const message = popup.querySelector('.popup-message');
-    const wordData = allWords[word];
+            if (correct) {
+                emoji.textContent = wordData.emoji + ' ✅';
+                title.textContent = 'Excellent!';
+                message.textContent = `"${word}" is correct! ${wordData.hint}`;
+                popup.classList.add('success');
+            } else {
+                emoji.textContent = '❌';
+                title.textContent = 'Not Quite!';
+                message.textContent = `The correct word is "${word}". The letters were scrambled!`;
+                popup.classList.remove('success');
+            }
 
-    if (correct) {
-        emoji.textContent = wordData.emoji + ' ✅';
-        title.textContent = 'Excellent!';
-        message.textContent = `"${word}" is correct! ${wordData.hint}`;
-        popup.classList.add('success');
-    } else {
-        emoji.textContent = '❌';
-        title.textContent = 'Not Quite!';
-        message.textContent = `The correct word is "${word}". The letters were scrambled!`;
-        popup.classList.remove('success');
-    }
+            popup.classList.remove('hidden');
+        }
 
-    popup.classList.remove('hidden');
-}
+        function nextWord() {
+            document.getElementById('result-popup').classList.add('hidden');
+            currentIndex++;
+            loadWord();
+        }
 
-function nextWord() {
-    document.getElementById('result-popup').classList.add('hidden');
-    currentIndex++;
-    loadWord();
-}
+        function showExtraHint() {
+            const wordData = allWords[currentWord];
+            const hintElement = document.getElementById('extra-hint');
+            const firstLetter = currentWord.charAt(0).toUpperCase();
+            const lastLetter = currentWord.charAt(currentWord.length - 1).toUpperCase();
+            hintElement.textContent = `💡 ${wordData.hint} | Starts with "${firstLetter}" and ends with "${lastLetter}"`;
+            hintElement.classList.remove('hidden');
+        }
 
-function showExtraHint() {
-    const wordData = allWords[currentWord];
-    const hintElement = document.getElementById('extra-hint');
-    const firstLetter = currentWord.charAt(0).toUpperCase();
-    const lastLetter = currentWord.charAt(currentWord.length - 1).toUpperCase();
-    hintElement.textContent = `💡 ${wordData.hint} | Starts with "${firstLetter}" and ends with "${lastLetter}"`;
-    hintElement.classList.remove('hidden');
-}
+        function skipWord() {
+            if (confirm('Skip this word? You won\'t get points for it.')) {
+                nextWord();
+            }
+        }
 
-function skipWord() {
-    if (confirm('Skip this word? You won\'t get points for it.')) {
-        nextWord();
-    }
-}
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
 
-function updateScore() {
-    document.getElementById('score').textContent = score;
-}
-
-function showComplete() {
-    const popup = document.getElementById('complete-popup');
-    document.getElementById('final-score').textContent = score;
-    popup.classList.remove('hidden');
-}
-</script>
-{% endblock %}
+        function showComplete() {
+            saveProgress('scramble', score);
+            const popup = document.getElementById('complete-popup');
+            document.getElementById('final-score').textContent = score;
+            popup.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
