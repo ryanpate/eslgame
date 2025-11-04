@@ -1,21 +1,21 @@
 :root {
-    /* Updated professional color palette with Halloween theme */
-    --primary-color: #FF6B35;
-    --primary-dark: #E85A2A;
-    --secondary-color: #F7931E;
-    --accent-color: #9B59B6;
-    --accent-light: #BB78D6;
+    /* VocabLab - Bright and Friendly Color Palette */
+    --primary-color: #4A90E2;
+    --primary-dark: #2E5F8F;
+    --secondary-color: #FF6B6B;
+    --accent-color: #4ECDC4;
+    --accent-light: #95E1D3;
 
-    /* Background colors - more sophisticated */
-    --dark-bg: #1A1A2E;
-    --darker-bg: #0F0F1E;
-    --card-bg: #252545;
-    --card-hover: #2D2D55;
+    /* Background colors - light and bright */
+    --dark-bg: #F8F9FA;
+    --darker-bg: #FFFFFF;
+    --card-bg: #FFFFFF;
+    --card-hover: #F0F7FF;
 
     /* Text colors */
-    --text-light: #FFFFFF;
-    --text-gray: #B8B8D8;
-    --text-dark: #0F3460;
+    --text-light: #2C3E50;
+    --text-gray: #6C757D;
+    --text-dark: #1A252F;
 
     /* Status colors */
     --success: #2ECC71;
@@ -24,12 +24,12 @@
     --danger-dark: #C0392B;
     --warning: #F39C12;
 
-    /* Shadows and effects */
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
-    --glow-orange: 0 0 20px rgba(255, 107, 53, 0.4);
-    --glow-purple: 0 0 20px rgba(155, 89, 182, 0.4);
+    /* Shadows and effects - softer for light theme */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+    --glow-blue: 0 0 20px rgba(74, 144, 226, 0.3);
+    --glow-teal: 0 0 20px rgba(78, 205, 196, 0.3);
 
     /* Spacing */
     --spacing-xs: 0.5rem;
@@ -53,7 +53,7 @@
 
 body {
     font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Oxygen', sans-serif;
-    background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 50%, #1a1535 100%);
+    background: linear-gradient(135deg, #E3F2FD 0%, #F8F9FA 50%, #FFF5F5 100%);
     background-attachment: fixed;
     color: var(--text-light);
     min-height: 100vh;
@@ -74,9 +74,9 @@ body {
 
 header {
     padding: var(--spacing-md) 0;
-    background: rgba(37, 37, 69, 0.6);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 107, 53, 0.3);
+    border-bottom: 2px solid var(--primary-color);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -96,7 +96,7 @@ nav {
     align-items: center;
     gap: 12px;
     text-decoration: none;
-    color: var(--text-light);
+    color: var(--primary-color);
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -0.5px;
@@ -197,6 +197,74 @@ main {
     font-weight: 400;
     max-width: 600px;
     margin: 0 auto;
+}
+
+/* ============================================
+   THEME SELECTOR
+   ============================================ */
+
+.theme-selector {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.theme-selector h2 {
+    margin-bottom: var(--spacing-md);
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.theme-buttons {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.theme-btn {
+    padding: 20px 24px;
+    background: var(--card-bg);
+    border: 3px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 200px;
+    box-shadow: var(--shadow-sm);
+}
+
+.theme-btn .emoji {
+    font-size: 2.5rem;
+}
+
+.theme-btn .theme-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+.theme-btn .theme-desc {
+    font-size: 0.85rem;
+    color: var(--text-gray);
+    text-align: center;
+}
+
+.theme-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-color);
+}
+
+.theme-btn.active {
+    border-color: var(--primary-color);
+    background: var(--card-hover);
+    box-shadow: var(--glow-blue);
 }
 
 /* ============================================
@@ -878,6 +946,18 @@ main {
     flex-wrap: wrap;
 }
 
+.word-count {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-gray);
+    font-size: 1rem;
+}
+
+.word-count span {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
 .filter-btn {
     padding: 12px 24px;
     border: 2px solid rgba(255, 107, 53, 0.3);
@@ -1135,6 +1215,277 @@ footer .small {
     }
 }
 
+/* ============================================
+   FLASHCARD QUIZ GAME
+   ============================================ */
+
+.flashcard-display {
+    background: var(--card-bg);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.flashcard-emoji {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-md);
+    animation: pulse 2s infinite;
+}
+
+.flashcard-definition {
+    font-size: 1.3rem;
+    color: var(--text-light);
+    line-height: 1.8;
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: var(--card-hover);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--primary-color);
+}
+
+.choices-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.choice-btn {
+    padding: var(--spacing-md);
+    font-size: 1.1rem;
+    background: var(--card-hover);
+    border: 2px solid var(--accent-color);
+    border-radius: var(--radius-md);
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.choice-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    background: var(--primary-color);
+    color: white;
+}
+
+.choice-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.choice-btn.correct {
+    background: var(--success);
+    border-color: var(--success-dark);
+    color: white;
+}
+
+.choice-btn.incorrect {
+    background: var(--danger);
+    border-color: var(--danger-dark);
+    color: white;
+}
+
+/* ============================================
+   SPEED CHALLENGE GAME
+   ============================================ */
+
+.speed-display {
+    background: var(--card-bg);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.speed-progress {
+    width: 100%;
+    height: 30px;
+    background: var(--card-hover);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: var(--spacing-xl);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    height: 100%;
+    background: var(--success);
+    transition: width 0.3s ease, background 0.3s ease;
+    border-radius: var(--radius-md);
+}
+
+.speed-question {
+    margin-bottom: var(--spacing-lg);
+}
+
+.question-emoji {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.question-text {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    line-height: 1.6;
+    padding: var(--spacing-md);
+    background: var(--card-hover);
+    border-radius: var(--radius-md);
+}
+
+.speed-choices {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.speed-choice-btn {
+    padding: var(--spacing-md);
+    font-size: 1rem;
+    background: var(--card-hover);
+    border: 2px solid var(--accent-color);
+    border-radius: var(--radius-md);
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.speed-choice-btn:hover {
+    transform: scale(1.05);
+    background: var(--primary-color);
+    color: white;
+}
+
+.speed-feedback {
+    font-size: 1.1rem;
+    font-weight: 600;
+    min-height: 30px;
+    margin-top: var(--spacing-md);
+}
+
+.btn-large {
+    font-size: 1.3rem;
+    padding: var(--spacing-md) var(--spacing-xl);
+}
+
+.final-stats {
+    display: flex;
+    justify-content: space-around;
+    gap: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    margin-top: var(--spacing-xs);
+}
+
+/* ============================================
+   CONVERSATION BUILDER GAME
+   ============================================ */
+
+.conversation-display {
+    background: var(--card-bg);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.conversation-emoji {
+    font-size: 3.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.sentence-container {
+    margin-bottom: var(--spacing-xl);
+}
+
+.sentence-text {
+    font-size: 1.4rem;
+    color: var(--text-light);
+    line-height: 1.8;
+    padding: var(--spacing-lg);
+    background: var(--card-hover);
+    border-radius: var(--radius-md);
+    font-style: italic;
+    border-left: 4px solid var(--secondary-color);
+}
+
+.word-bank {
+    margin-bottom: var(--spacing-lg);
+}
+
+.word-bank-title {
+    font-size: 1.1rem;
+    color: var(--text-gray);
+    margin-bottom: var(--spacing-md);
+    font-weight: 500;
+}
+
+.word-bank-words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    justify-content: center;
+}
+
+.word-bank-btn {
+    padding: 12px 24px;
+    font-size: 1rem;
+    background: var(--card-hover);
+    border: 2px solid var(--accent-color);
+    border-radius: var(--radius-md);
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.word-bank-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    background: var(--primary-color);
+    color: white;
+}
+
+.word-bank-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.word-bank-btn.correct {
+    background: var(--success);
+    border-color: var(--success-dark);
+    color: white;
+}
+
+.word-bank-btn.incorrect {
+    background: var(--danger);
+    border-color: var(--danger-dark);
+    color: white;
+}
+
 @media (max-width: 480px) {
     .logo {
         font-size: 1.2rem;
@@ -1147,6 +1498,16 @@ footer .small {
 
     .vocabulary-grid {
         grid-template-columns: 1fr;
+    }
+
+    .choices-grid,
+    .speed-choices {
+        grid-template-columns: 1fr;
+    }
+
+    .final-stats {
+        flex-direction: column;
+        gap: var(--spacing-md);
     }
 }
 
