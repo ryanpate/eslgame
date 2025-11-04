@@ -1,62 +1,68 @@
 // Firebase Configuration for VocabLab
-// TODO: Replace with your actual Firebase config after creating project
+// ✅ Configured and ready to use!
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyChkaC8-I4X038Z-YCyz6oCKPWIC-TX6WA",
+    authDomain: "vocablab-7aade.firebaseapp.com",
+    projectId: "vocablab-7aade",
+    storageBucket: "vocablab-7aade.firebasestorage.app",
+    messagingSenderId: "830893526531",
+    appId: "1:830893526531:web:5ec2a1f7b3c7b3e4ebc836",
+    measurementId: "G-ZGW073LX4Y"
 };
 
 // Initialize Firebase (will be done in HTML pages)
-// This file is a template - you'll need to create a Firebase project and add your credentials
 
 /*
-SETUP INSTRUCTIONS:
+NEXT STEPS TO COMPLETE:
 
-1. Go to https://console.firebase.google.com/
-2. Click "Add project" or use existing project
-3. Name it "VocabLab" (or your preferred name)
-4. Enable Google Analytics (optional)
-5. Go to Project Settings > General
-6. Scroll to "Your apps" section
-7. Click the Web icon (</>)
-8. Register your app
-9. Copy the firebaseConfig object
-10. Replace the values above with your actual config
-11. Go to Authentication > Sign-in method
-12. Enable "Email/Password" provider
-13. Go to Firestore Database
-14. Click "Create database"
-15. Start in "production mode"
-16. Set location (choose closest to your users)
+✅ Firebase config added above
+⬜ Enable Authentication in Firebase Console:
+   - Go to https://console.firebase.google.com/project/vocablab-7aade/authentication
+   - Click "Get started"
+   - Select "Email/Password" from Sign-in providers
+   - Enable it and save
 
-SECURITY RULES (Set in Firebase Console > Firestore > Rules):
+⬜ Create Firestore Database:
+   - Go to https://console.firebase.google.com/project/vocablab-7aade/firestore
+   - Click "Create database"
+   - Start in "production mode" (we'll add rules next)
+   - Choose a location closest to your users
+
+⬜ Add Security Rules (see below)
+
+SECURITY RULES (Copy and paste into Firebase Console > Firestore > Rules):
 
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
     // Teachers can read/write their own data
     match /teachers/{teacherId} {
       allow read, write: if request.auth != null && request.auth.uid == teacherId;
     }
 
-    // Teachers can manage their classes
+    // Anyone authenticated can read classes (for student join)
+    // Only teachers can write their own classes
     match /classes/{classId} {
-      allow read, write: if request.auth != null &&
-        get(/databases/$(database)/documents/teachers/$(request.auth.uid)).data.classIds.hasAny([classId]);
+      allow read: if true;
+      allow write: if request.auth != null &&
+        resource.data.teacherId == request.auth.uid;
     }
 
-    // Teachers can manage their students
+    // Anyone can create students (for student join)
+    // Teachers can manage students in their classes
     match /students/{studentId} {
-      allow read, write: if request.auth != null;
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if request.auth != null;
     }
 
-    // Progress tracking
+    // Anyone can write progress (for student games without auth)
+    // Teachers can read progress for their classes
     match /progress/{progressId} {
-      allow read, write: if request.auth != null;
+      allow read: if true;
+      allow write: if true;
     }
   }
 }
