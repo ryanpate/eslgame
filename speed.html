@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speed Challenge - VocabLab</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🧪</span>
+                    <span>VocabLab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">🏠 Home</a>
+                    <a href="vocabulary.html">📚 Words</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div class="game-header">
+                <h1>⚡ Speed Challenge</h1>
+                <p>Answer as many questions as you can before time runs out!</p>
+                <div class="game-stats">
+                    <span>Score: <span id="score">0</span></span>
+                    <span>Time: <span id="timer">60</span>s</span>
+                </div>
+            </div>
+
+            <div id="speed-game">
+                <div class="speed-display">
+                    <div class="speed-progress">
+                        <div class="progress-bar" id="progress-bar"></div>
+                    </div>
+
+                    <div class="speed-question">
+                        <div class="question-emoji" id="question-emoji">⚡</div>
+                        <div class="question-text" id="question-text">Click Start to begin!</div>
+                    </div>
+
+                    <div class="speed-choices" id="speed-choices">
+                        <!-- Choices will be inserted here -->
+                    </div>
+
+                    <div class="speed-feedback" id="speed-feedback"></div>
+
+                    <button class="btn btn-primary btn-large" id="start-btn">Start Challenge!</button>
+                </div>
+            </div>
+
+            <div id="complete-popup" class="popup hidden">
+                <div class="popup-content celebration">
+                    <h2>⚡ Time's Up! ⚡</h2>
+                    <p>Great job on the speed challenge!</p>
+                    <div class="final-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="final-score">0</div>
+                            <div class="stat-label">Correct Answers</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="total-answered">0</div>
+                            <div class="stat-label">Total Answered</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="accuracy">0%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                    </div>
+                    <div class="popup-buttons">
+                        <a href="#" id="play-again-btn" class="btn btn-primary">Play Again</a>
+                        <a href="index.html" class="btn btn-secondary">Home</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>🧪 VocabLab - Learn English with Fun!</p>
+            <p class="small">Interactive ESL Vocabulary Games</p>
+        </footer>
+    </div>
+
+    <script src="js/vocabulary.js"></script>
+    <script>
+        let score = 0;
+        let totalAnswered = 0;
+        let timeRemaining = 60;
+        let timerInterval = null;
+        let gameActive = false;
+        let currentQuestion = null;
+        let allQuestions = [];
+
+        // Get URL parameters
+        const difficulty = getDifficultyFromURL();
+        const theme = getThemeFromURL();
+
+        // Initialize game
+        function initGame() {
+            const words = getWordsByDifficulty(difficulty);
+            const wordList = Object.keys(words);
+
+            allQuestions = wordList.map(word => ({
+                word: word,
+                definition: words[word].definition,
+                hint: words[word].hint,
+                emoji: words[word].emoji
+            }));
+
+            allQuestions = shuffleArray(allQuestions);
+        }
+
+        // Start game
+        document.getElementById('start-btn').addEventListener('click', function() {
+            this.style.display = 'none';
+            gameActive = true;
+            startTimer();
+            loadNextQuestion();
+        });
+
+        // Start timer
+        function startTimer() {
+            updateProgressBar();
+            timerInterval = setInterval(function() {
+                timeRemaining--;
+                document.getElementById('timer').textContent = timeRemaining;
+                updateProgressBar();
+
+                if (timeRemaining <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        // Update progress bar
+        function updateProgressBar() {
+            const percentage = (timeRemaining / 60) * 100;
+            document.getElementById('progress-bar').style.width = percentage + '%';
+
+            // Change color based on time remaining
+            const bar = document.getElementById('progress-bar');
+            if (timeRemaining > 30) {
+                bar.style.background = 'var(--success)';
+            } else if (timeRemaining > 10) {
+                bar.style.background = 'var(--warning)';
+            } else {
+                bar.style.background = 'var(--danger)';
+            }
+        }
+
+        // Load next question
+        function loadNextQuestion() {
+            if (!gameActive || allQuestions.length === 0) {
+                endGame();
+                return;
+            }
+
+            currentQuestion = allQuestions.shift();
+
+            document.getElementById('question-emoji').textContent = currentQuestion.emoji;
+            document.getElementById('question-text').textContent = currentQuestion.definition;
+
+            generateChoices();
+            document.getElementById('speed-feedback').textContent = '';
+        }
+
+        // Generate choices
+        function generateChoices() {
+            const allWords = Object.keys(getCurrentThemeWords());
+            const choices = [currentQuestion.word];
+
+            // Add 3 random wrong answers
+            while (choices.length < 4) {
+                const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
+                if (!choices.includes(randomWord)) {
+                    choices.push(randomWord);
+                }
+            }
+
+            const shuffled = shuffleArray(choices);
+
+            const choicesDiv = document.getElementById('speed-choices');
+            choicesDiv.innerHTML = '';
+
+            shuffled.forEach(word => {
+                const button = document.createElement('button');
+                button.className = 'speed-choice-btn';
+                button.textContent = word;
+                button.onclick = () => checkAnswer(word);
+                choicesDiv.appendChild(button);
+            });
+        }
+
+        // Check answer
+        function checkAnswer(selectedWord) {
+            if (!gameActive) return;
+
+            totalAnswered++;
+            const feedback = document.getElementById('speed-feedback');
+
+            if (selectedWord === currentQuestion.word) {
+                score++;
+                document.getElementById('score').textContent = score;
+                feedback.textContent = '✅ Correct!';
+                feedback.style.color = 'var(--success)';
+            } else {
+                feedback.textContent = '❌ Wrong! It was "' + currentQuestion.word + '"';
+                feedback.style.color = 'var(--danger)';
+            }
+
+            // Load next question after short delay
+            setTimeout(loadNextQuestion, 800);
+        }
+
+        // End game
+        function endGame() {
+            gameActive = false;
+            clearInterval(timerInterval);
+
+            const accuracy = totalAnswered > 0 ? Math.round((score / totalAnswered) * 100) : 0;
+
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('total-answered').textContent = totalAnswered;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+
+            document.getElementById('complete-popup').classList.remove('hidden');
+            saveProgress('speed', score);
+        }
+
+        // Play again
+        document.getElementById('play-again-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            location.reload();
+        });
+
+        // Initialize
+        initGame();
+    </script>
+</body>
+</html>

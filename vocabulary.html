@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vocabulary List - Halloween Words</title>
+    <title>Vocabulary List - VocabLab</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -11,8 +11,8 @@
         <header>
             <nav>
                 <a href="index.html" class="logo">
-                    <span class="emoji">🎃</span>
-                    <span>Halloween Vocab</span>
+                    <span class="emoji">🧪</span>
+                    <span>VocabLab</span>
                 </a>
                 <div class="nav-links">
                     <a href="index.html">🏠 Home</a>
@@ -23,8 +23,26 @@
 
         <main>
             <div class="vocab-header">
-                <h1>📚 Halloween Vocabulary List</h1>
+                <h1 id="vocab-title">📚 Vocabulary List</h1>
                 <p>Study these words to improve your English!</p>
+            </div>
+
+            <div class="theme-selector">
+                <h3>Choose Theme:</h3>
+                <div class="theme-buttons">
+                    <button class="theme-btn active" data-theme="daily-life">
+                        <span class="emoji">🏠</span>
+                        <span class="theme-name">Daily Life</span>
+                    </button>
+                    <button class="theme-btn" data-theme="nature-animals">
+                        <span class="emoji">🌿</span>
+                        <span class="theme-name">Nature & Animals</span>
+                    </button>
+                    <button class="theme-btn" data-theme="technology">
+                        <span class="emoji">💻</span>
+                        <span class="theme-name">Technology</span>
+                    </button>
+                </div>
             </div>
 
             <div class="filter-section">
@@ -35,6 +53,10 @@
                     <button class="filter-btn" data-level="medium">😐 Medium</button>
                     <button class="filter-btn" data-level="hard">😤 Hard</button>
                 </div>
+            </div>
+
+            <div class="word-count">
+                <p><strong>Showing: <span id="word-count">0</span> words</strong></p>
             </div>
 
             <div class="vocabulary-grid" id="vocabulary-grid"></div>
@@ -71,79 +93,124 @@
         </main>
 
         <footer>
-            <p>👻 Learn English with Fun! 🎃</p>
-            <p class="small">For ESL Students - Practice Halloween Vocabulary</p>
+            <p>🧪 VocabLab - Learn English with Fun!</p>
+            <p class="small">Interactive ESL Vocabulary Games</p>
         </footer>
     </div>
 
     <script src="js/vocabulary.js"></script>
     <script>
+        let currentTheme = getThemeFromURL();
+        let currentFilter = 'all';
+
         document.addEventListener('DOMContentLoaded', function() {
             displayVocabulary();
             setupFilters();
+            setupThemeSwitcher();
         });
 
+        function setupThemeSwitcher() {
+            const themeButtons = document.querySelectorAll('.theme-btn');
+
+            themeButtons.forEach(btn => {
+                if (btn.dataset.theme === currentTheme) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+
+                btn.addEventListener('click', function() {
+                    themeButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentTheme = this.dataset.theme;
+
+                    // Update URL
+                    const url = new URL(window.location);
+                    url.searchParams.set('theme', currentTheme);
+                    window.history.pushState({}, '', url);
+
+                    displayVocabulary();
+                });
+            });
+        }
+
         function displayVocabulary() {
+            const themeInfo = THEMES[currentTheme] || THEMES['daily-life'];
+            document.getElementById('vocab-title').textContent = `${themeInfo.emoji} ${themeInfo.name} Vocabulary`;
+
             const grid = document.getElementById('vocabulary-grid');
-            const sortedWords = Object.keys(HALLOWEEN_WORDS).sort();
-            
+            grid.innerHTML = '';
+
+            const words = themeInfo.words;
+            const sortedWords = Object.keys(words).sort();
+
             sortedWords.forEach(word => {
-                const data = HALLOWEEN_WORDS[word];
+                const data = words[word];
                 const card = createVocabCard(word, data);
                 grid.appendChild(card);
             });
+
+            updateWordCount();
         }
 
         function createVocabCard(word, data) {
             const card = document.createElement('div');
             card.className = 'vocab-card';
             card.dataset.difficulty = data.difficulty;
-            
-            let difficultyLabel = '';
-            let difficultyClass = '';
-            
-            if (data.difficulty === 'easy') {
-                difficultyLabel = '😊 Easy';
-                difficultyClass = 'difficulty-easy';
-            } else if (data.difficulty === 'medium') {
-                difficultyLabel = '😐 Medium';
-                difficultyClass = 'difficulty-medium';
-            } else {
-                difficultyLabel = '😤 Hard';
-                difficultyClass = 'difficulty-hard';
-            }
-            
+
+            const difficultyColors = {
+                'easy': 'var(--success)',
+                'medium': 'var(--warning)',
+                'hard': 'var(--danger)'
+            };
+
             card.innerHTML = `
                 <div class="vocab-emoji">${data.emoji}</div>
                 <h3 class="vocab-word">${word}</h3>
+                <div class="vocab-difficulty" style="color: ${difficultyColors[data.difficulty]}">
+                    ${data.difficulty.charAt(0).toUpperCase() + data.difficulty.slice(1)}
+                </div>
                 <p class="vocab-definition">${data.definition}</p>
-                <p class="vocab-hint">💡 ${data.hint}</p>
-                <span class="vocab-difficulty ${difficultyClass}">${difficultyLabel}</span>
+                <p class="vocab-hint"><em>Hint: ${data.hint}</em></p>
             `;
-            
+
             return card;
         }
 
         function setupFilters() {
             const filterButtons = document.querySelectorAll('.filter-btn');
-            const vocabCards = document.querySelectorAll('.vocab-card');
 
             filterButtons.forEach(btn => {
                 btn.addEventListener('click', function() {
                     filterButtons.forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
-
-                    const level = this.dataset.level;
-
-                    vocabCards.forEach(card => {
-                        if (level === 'all' || card.dataset.difficulty === level) {
-                            card.style.display = 'block';
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
+                    currentFilter = this.dataset.level;
+                    filterVocabulary();
                 });
             });
+        }
+
+        function filterVocabulary() {
+            const cards = document.querySelectorAll('.vocab-card');
+
+            cards.forEach(card => {
+                if (currentFilter === 'all' || card.dataset.difficulty === currentFilter) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            updateWordCount();
+        }
+
+        function updateWordCount() {
+            const visibleCards = document.querySelectorAll('.vocab-card[style="display: block"], .vocab-card:not([style])');
+            const count = currentFilter === 'all' ?
+                document.querySelectorAll('.vocab-card').length :
+                visibleCards.length;
+
+            document.getElementById('word-count').textContent = count;
         }
     </script>
 </body>

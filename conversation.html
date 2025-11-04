@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation Builder - VocabLab</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🧪</span>
+                    <span>VocabLab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">🏠 Home</a>
+                    <a href="vocabulary.html">📚 Words</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div class="game-header">
+                <h1>💬 Conversation Builder</h1>
+                <p>Complete the sentence with the correct vocabulary word!</p>
+                <div class="game-stats">
+                    <span>Score: <span id="score">0</span></span>
+                    <span>Sentence: <span id="current">1</span>/<span id="total">0</span></span>
+                </div>
+            </div>
+
+            <div id="conversation-game">
+                <div class="conversation-display">
+                    <div class="conversation-emoji" id="conversation-emoji">💬</div>
+
+                    <div class="sentence-container">
+                        <div class="sentence-text" id="sentence-text">Loading...</div>
+                    </div>
+
+                    <div class="word-bank" id="word-bank">
+                        <div class="word-bank-title">Choose the correct word:</div>
+                        <div class="word-bank-words" id="word-bank-words">
+                            <!-- Word options will be inserted here -->
+                        </div>
+                    </div>
+
+                    <div class="help-section">
+                        <button class="btn btn-secondary" id="hint-btn">💡 Show Hint</button>
+                        <button class="btn btn-secondary" id="skip-btn">⏭️ Skip</button>
+                    </div>
+
+                    <div id="extra-hint" class="extra-hint hidden"></div>
+                </div>
+            </div>
+
+            <div id="result-popup" class="popup hidden">
+                <div class="popup-content">
+                    <span class="popup-emoji"></span>
+                    <h2 class="popup-title"></h2>
+                    <p class="popup-message"></p>
+                    <div class="popup-buttons">
+                        <button class="btn btn-primary" onclick="nextSentence()">Next Sentence ➡️</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="complete-popup" class="popup hidden">
+                <div class="popup-content celebration">
+                    <h2>🎉 All Done! 🎉</h2>
+                    <p>You completed all the sentences!</p>
+                    <div class="final-score">
+                        Final Score: <span id="final-score">0</span> / <span id="final-total">0</span>
+                    </div>
+                    <div class="popup-buttons">
+                        <a href="#" id="play-again-btn" class="btn btn-primary">Play Again</a>
+                        <a href="index.html" class="btn btn-secondary">Home</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>🧪 VocabLab - Learn English with Fun!</p>
+            <p class="small">Interactive ESL Vocabulary Games</p>
+        </footer>
+    </div>
+
+    <script src="js/vocabulary.js"></script>
+    <script>
+        let currentSentenceIndex = 0;
+        let score = 0;
+        let sentences = [];
+        let correctAnswer = '';
+
+        // Get URL parameters
+        const difficulty = getDifficultyFromURL();
+        const theme = getThemeFromURL();
+
+        // Sentence templates by theme
+        const sentenceTemplates = {
+            'daily-life': [
+                'I need to go to the ___ to buy food.',
+                'My ___ cooks dinner every night.',
+                'I forgot my ___ at home so I can\'t write.',
+                'We eat ___ in the morning before school.',
+                'Please turn on the ___ because it\'s dark.',
+                'The ___ is full of our clothes.',
+                'I have too much ___ to do tonight.',
+                'We\'re going on ___ to the beach next week.',
+                'I brush my teeth in the ___.',
+                'Let\'s ride our ___ to the park.',
+            ],
+            'nature-animals': [
+                'The ___ is shining brightly today.',
+                'Look at that colorful ___ flying!',
+                'We planted a ___ in our garden.',
+                'The ___ is falling from the sky.',
+                'I can hear ___ coming from the storm.',
+                'The ___ flows into the ocean.',
+                'Many animals live in the ___.',
+                'A ___ roared loudly at the zoo.',
+                'Birds migrate during their ___.',
+                'Plants need water and sunlight for ___.',
+            ],
+            'technology': [
+                'I use my ___ to check email.',
+                'Don\'t forget your ___ to unlock your account.',
+                'I need to ___ this file from the website.',
+                'The ___ shows everything clearly.',
+                'My phone\'s ___ is almost dead.',
+                'Connect to the ___ to use the internet.',
+                'I sent her a text ___.',
+                'Click the ___ to control the cursor.',
+                'We watched a funny ___ online.',
+                'I need to ___ my apps to the latest version.',
+            ]
+        };
+
+        // Initialize game
+        function initGame() {
+            const words = getWordsByDifficulty(difficulty);
+            const wordList = getRandomWords(words, 8);
+
+            // Get templates for current theme
+            const templates = sentenceTemplates[theme] || sentenceTemplates['daily-life'];
+
+            sentences = wordList.map(word => {
+                const template = templates[Math.floor(Math.random() * templates.length)];
+                return {
+                    word: word,
+                    sentence: template,
+                    definition: words[word].definition,
+                    hint: words[word].hint,
+                    emoji: words[word].emoji
+                };
+            });
+
+            document.getElementById('total').textContent = sentences.length;
+            loadSentence();
+        }
+
+        // Load current sentence
+        function loadSentence() {
+            if (currentSentenceIndex >= sentences.length) {
+                showCompletePopup();
+                return;
+            }
+
+            const sentence = sentences[currentSentenceIndex];
+            correctAnswer = sentence.word;
+
+            document.getElementById('current').textContent = currentSentenceIndex + 1;
+            document.getElementById('conversation-emoji').textContent = sentence.emoji;
+
+            // Display sentence with blank
+            const sentenceWithBlank = sentence.sentence.replace('___', '____');
+            document.getElementById('sentence-text').innerHTML = `"${sentenceWithBlank}"`;
+
+            document.getElementById('extra-hint').classList.add('hidden');
+
+            generateWordBank();
+        }
+
+        // Generate word bank options
+        function generateWordBank() {
+            const allWords = Object.keys(getCurrentThemeWords());
+            const options = [correctAnswer];
+
+            // Add 3 random wrong answers
+            while (options.length < 4) {
+                const randomWord = allWords[Math.floor(Math.random() * allWords.length)];
+                if (!options.includes(randomWord)) {
+                    options.push(randomWord);
+                }
+            }
+
+            const shuffled = shuffleArray(options);
+
+            const wordBankDiv = document.getElementById('word-bank-words');
+            wordBankDiv.innerHTML = '';
+
+            shuffled.forEach(word => {
+                const button = document.createElement('button');
+                button.className = 'word-bank-btn';
+                button.textContent = word;
+                button.onclick = () => checkAnswer(word, button);
+                wordBankDiv.appendChild(button);
+            });
+        }
+
+        // Check answer
+        function checkAnswer(selectedWord, button) {
+            const allButtons = document.querySelectorAll('.word-bank-btn');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            if (selectedWord === correctAnswer) {
+                score++;
+                document.getElementById('score').textContent = score;
+                button.classList.add('correct');
+
+                // Show completed sentence
+                const sentence = sentences[currentSentenceIndex];
+                const completedSentence = sentence.sentence.replace('___', `<strong>${correctAnswer}</strong>`);
+                document.getElementById('sentence-text').innerHTML = `"${completedSentence}"`;
+
+                showResultPopup(true);
+            } else {
+                button.classList.add('incorrect');
+                allButtons.forEach(btn => {
+                    if (btn.textContent === correctAnswer) {
+                        btn.classList.add('correct');
+                    }
+                });
+                showResultPopup(false);
+            }
+        }
+
+        // Show result popup
+        function showResultPopup(isCorrect) {
+            const popup = document.getElementById('result-popup');
+            const emoji = popup.querySelector('.popup-emoji');
+            const title = popup.querySelector('.popup-title');
+            const message = popup.querySelector('.popup-message');
+
+            if (isCorrect) {
+                emoji.textContent = '🎉';
+                title.textContent = 'Perfect!';
+                message.textContent = `Great job! "${correctAnswer}" fits perfectly!`;
+            } else {
+                emoji.textContent = '😕';
+                title.textContent = 'Not quite';
+                message.textContent = `The correct word was "${correctAnswer}". Keep practicing!`;
+            }
+
+            popup.classList.remove('hidden');
+        }
+
+        // Next sentence
+        function nextSentence() {
+            document.getElementById('result-popup').classList.add('hidden');
+            currentSentenceIndex++;
+            loadSentence();
+        }
+
+        // Show hint
+        document.getElementById('hint-btn').addEventListener('click', function() {
+            const sentence = sentences[currentSentenceIndex];
+            const hintDiv = document.getElementById('extra-hint');
+            hintDiv.textContent = '💡 Definition: ' + sentence.definition;
+            hintDiv.classList.remove('hidden');
+        });
+
+        // Skip button
+        document.getElementById('skip-btn').addEventListener('click', function() {
+            currentSentenceIndex++;
+            loadSentence();
+        });
+
+        // Show complete popup
+        function showCompletePopup() {
+            const popup = document.getElementById('complete-popup');
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-total').textContent = sentences.length;
+            popup.classList.remove('hidden');
+            saveProgress('conversation', score);
+        }
+
+        // Play again
+        document.getElementById('play-again-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            location.reload();
+        });
+
+        // Initialize
+        initGame();
+    </script>
+</body>
+</html>

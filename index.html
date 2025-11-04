@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halloween Vocabulary Game</title>
+    <title>VocabLab - Interactive ESL Vocabulary Learning</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -11,8 +11,8 @@
         <header>
             <nav>
                 <a href="index.html" class="logo">
-                    <span class="emoji">🎃</span>
-                    <span>Halloween Vocab</span>
+                    <span class="emoji">🧪</span>
+                    <span>VocabLab</span>
                 </a>
                 <div class="nav-links">
                     <a href="index.html">🏠 Home</a>
@@ -23,8 +23,29 @@
 
         <main>
             <div class="hero">
-                <h1 class="title">🎃 Halloween Vocabulary Games 👻</h1>
-                <p class="subtitle">Learn English Words with Fun Halloween Games!</p>
+                <h1 class="title">🧪 VocabLab</h1>
+                <p class="subtitle">Master English Vocabulary with Interactive Games!</p>
+            </div>
+
+            <div class="theme-selector">
+                <h2>Choose Your Theme:</h2>
+                <div class="theme-buttons">
+                    <button class="theme-btn active" data-theme="daily-life">
+                        <span class="emoji">🏠</span>
+                        <span class="theme-name">Daily Life</span>
+                        <span class="theme-desc">House, food, family, school</span>
+                    </button>
+                    <button class="theme-btn" data-theme="nature-animals">
+                        <span class="emoji">🌿</span>
+                        <span class="theme-name">Nature & Animals</span>
+                        <span class="theme-desc">Wildlife, weather, plants</span>
+                    </button>
+                    <button class="theme-btn" data-theme="technology">
+                        <span class="emoji">💻</span>
+                        <span class="theme-name">Technology</span>
+                        <span class="theme-desc">Computers, internet, phones</span>
+                    </button>
+                </div>
             </div>
 
             <div class="difficulty-selector">
@@ -62,7 +83,7 @@
                 <div class="game-card">
                     <div class="card-emoji">✍️</div>
                     <h2>Spell It!</h2>
-                    <p>Listen and spell the word correctly</p>
+                    <p>Type the correct spelling of words</p>
                     <a href="spelling.html" class="play-btn" data-game="spelling">
                         ▶️ Play
                     </a>
@@ -78,9 +99,36 @@
                 </div>
 
                 <div class="game-card">
+                    <div class="card-emoji">🎴</div>
+                    <h2>Flashcard Quiz</h2>
+                    <p>Test yourself with flashcard-style questions</p>
+                    <a href="flashcard.html" class="play-btn" data-game="flashcard">
+                        ▶️ Play
+                    </a>
+                </div>
+
+                <div class="game-card">
+                    <div class="card-emoji">⚡</div>
+                    <h2>Speed Challenge</h2>
+                    <p>Race against the clock to answer fast</p>
+                    <a href="speed.html" class="play-btn" data-game="speed">
+                        ▶️ Play
+                    </a>
+                </div>
+
+                <div class="game-card">
+                    <div class="card-emoji">💬</div>
+                    <h2>Conversation Builder</h2>
+                    <p>Build sentences using vocabulary words</p>
+                    <a href="conversation.html" class="play-btn" data-game="conversation">
+                        ▶️ Play
+                    </a>
+                </div>
+
+                <div class="game-card">
                     <div class="card-emoji">📚</div>
-                    <h2>Word List</h2>
-                    <p>Study all Halloween vocabulary</p>
+                    <h2>Study Words</h2>
+                    <p>Browse and study all vocabulary</p>
                     <a href="vocabulary.html" class="play-btn">
                         👀 View
                     </a>
@@ -88,50 +136,69 @@
             </div>
 
             <div class="instructions">
-                <h2>How to Play</h2>
+                <h2>How to Use VocabLab</h2>
                 <div class="instruction-grid">
                     <div class="instruction-item">
                         <span class="inst-number">1</span>
-                        <p>Choose your level</p>
+                        <p>Choose a theme</p>
                     </div>
                     <div class="instruction-item">
                         <span class="inst-number">2</span>
-                        <p>Pick a game</p>
+                        <p>Select your level</p>
                     </div>
                     <div class="instruction-item">
                         <span class="inst-number">3</span>
-                        <p>Learn new words!</p>
+                        <p>Play and learn!</p>
                     </div>
                 </div>
             </div>
         </main>
 
         <footer>
-            <p>👻 Learn English with Fun! 🎃</p>
-            <p class="small">For ESL Students - Practice Halloween Vocabulary</p>
+            <p>🧪 VocabLab - Learn English with Fun!</p>
+            <p class="small">Interactive ESL Vocabulary Games for All Levels</p>
         </footer>
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const themeButtons = document.querySelectorAll('.theme-btn');
         const diffButtons = document.querySelectorAll('.diff-btn');
         const playButtons = document.querySelectorAll('.play-btn[data-game]');
+        let selectedTheme = 'daily-life';
         let selectedDifficulty = 'all';
 
+        // Theme selection
+        themeButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                themeButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedTheme = this.dataset.theme;
+                updateGameLinks();
+            });
+        });
+
+        // Difficulty selection
         diffButtons.forEach(btn => {
             btn.addEventListener('click', function() {
                 diffButtons.forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 selectedDifficulty = this.dataset.level;
-                
-                // Update play button links
-                playButtons.forEach(playBtn => {
-                    const game = playBtn.dataset.game;
-                    const baseUrl = playBtn.getAttribute('href').split('?')[0];
-                    playBtn.setAttribute('href', `${baseUrl}?difficulty=${selectedDifficulty}`);
-                });
+                updateGameLinks();
             });
         });
+
+        // Update all game links with theme and difficulty
+        function updateGameLinks() {
+            playButtons.forEach(playBtn => {
+                const game = playBtn.dataset.game;
+                const baseUrl = playBtn.getAttribute('href').split('?')[0];
+                playBtn.setAttribute('href', `${baseUrl}?theme=${selectedTheme}&difficulty=${selectedDifficulty}`);
+            });
+        }
+
+        // Initialize links
+        updateGameLinks();
     });
     </script>
 </body>
