@@ -75,6 +75,16 @@
         </footer>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+
+    <!-- Progress Tracker -->
+    <script src="js/progress-tracker.js"></script>
+
     <script src="js/vocabulary.js"></script>
     <script>
         let selectedWord = null;
@@ -235,10 +245,20 @@
         }
 
         function showComplete() {
-            saveProgress('matching', score);
             const popup = document.getElementById('complete-popup');
             document.getElementById('final-score').textContent = score;
             popup.classList.remove('hidden');
+
+            // Save progress if student is logged in
+            const params = VocabLabProgress.getGameParams();
+            VocabLabProgress.saveProgress({
+                game: 'Match Words',
+                theme: params.theme,
+                difficulty: params.difficulty,
+                score: score,
+                correctAnswers: matches,
+                totalQuestions: totalMatches
+            });
         }
     </script>
 </body>

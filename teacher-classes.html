@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Classes - VocabLab</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🧪</span>
+                    <span>VocabLab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="teacher-dashboard.html">📊 Dashboard</a>
+                    <a href="teacher-classes.html">👥 Classes</a>
+                    <a href="#" id="logout-btn">🚪 Logout</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div id="loading" class="loading-spinner">Loading...</div>
+
+            <div id="classes-content" class="dashboard-content hidden">
+                <!-- Header with Create Button -->
+                <div class="dashboard-header">
+                    <div class="welcome-section">
+                        <h1>📚 My Classes</h1>
+                        <p class="subtitle">Manage your classes and track student progress</p>
+                    </div>
+                    <div class="quick-actions">
+                        <button id="create-class-btn" class="btn btn-primary">
+                            ➕ Create New Class
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Classes Grid -->
+                <div id="classes-list" class="classes-grid">
+                    <!-- Classes will be loaded here -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="no-classes" class="empty-state hidden">
+                    <div class="empty-icon">📚</div>
+                    <h3>No classes yet</h3>
+                    <p>Create your first class to start tracking student progress</p>
+                    <button id="create-first-class-btn" class="btn btn-primary">
+                        Create Your First Class
+                    </button>
+                </div>
+            </div>
+
+            <!-- Create/Edit Class Modal -->
+            <div id="class-modal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="modal-title">Create New Class</h2>
+                        <button class="modal-close" id="close-modal">&times;</button>
+                    </div>
+
+                    <form id="class-form">
+                        <div class="form-group">
+                            <label for="class-name">Class Name *</label>
+                            <input type="text" id="class-name" required
+                                   placeholder="e.g., ESL Period 2, Beginner English">
+                            <small>Give your class a memorable name</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="class-description">Description</label>
+                            <textarea id="class-description" rows="3"
+                                      placeholder="Optional: Add details about this class"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="class-theme">Vocabulary Theme</label>
+                            <select id="class-theme">
+                                <option value="all">All Themes</option>
+                                <option value="daily-life">🏠 Daily Life</option>
+                                <option value="nature-animals">🌿 Nature & Animals</option>
+                                <option value="technology">💻 Technology</option>
+                            </select>
+                            <small>Students will focus on words from this theme</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="class-difficulty">Difficulty Level</label>
+                            <select id="class-difficulty">
+                                <option value="all">All Levels</option>
+                                <option value="easy">😊 Easy</option>
+                                <option value="medium">😐 Medium</option>
+                                <option value="hard">😤 Hard</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="max-students">Maximum Students</label>
+                            <input type="number" id="max-students" min="1" max="50" value="30">
+                            <small>Free account: up to 30 students per class</small>
+                        </div>
+
+                        <div id="modal-error" class="error-message hidden"></div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="submit-btn">Create Class</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Modal -->
+            <div id="delete-modal" class="modal hidden">
+                <div class="modal-content modal-small">
+                    <div class="modal-header">
+                        <h2>Delete Class?</h2>
+                        <button class="modal-close" id="close-delete-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete <strong id="delete-class-name"></strong>?</p>
+                        <p class="warning-text">⚠️ This will also delete all student data and progress for this class. This action cannot be undone.</p>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-delete-btn">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete Class</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>🧪 VocabLab - Learn English with Fun!</p>
+            <p class="small">Interactive ESL Vocabulary Games</p>
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+        if (typeof firebaseConfig !== 'undefined' && firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            let currentTeacher = null;
+            let editingClassId = null;
+            let deletingClassId = null;
+
+            // Check authentication
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) {
+                    window.location.href = 'teacher-login.html';
+                    return;
+                }
+
+                try {
+                    const teacherDoc = await db.collection('teachers').doc(user.uid).get();
+                    if (!teacherDoc.exists) {
+                        await auth.signOut();
+                        window.location.href = 'teacher-login.html';
+                        return;
+                    }
+
+                    currentTeacher = { id: user.uid, ...teacherDoc.data() };
+                    await loadClasses();
+
+                    // Check if we should open create modal from URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('action') === 'new') {
+                        openCreateModal();
+                    }
+
+                } catch (error) {
+                    console.error('Error loading classes:', error);
+                    document.getElementById('loading').textContent = 'Error loading classes. Please refresh.';
+                }
+            });
+
+            // Load all classes
+            async function loadClasses() {
+                try {
+                    const classesSnapshot = await db.collection('classes')
+                        .where('teacherId', '==', currentTeacher.id)
+                        .orderBy('createdAt', 'desc')
+                        .get();
+
+                    const classes = [];
+                    classesSnapshot.forEach(doc => {
+                        classes.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    displayClasses(classes);
+
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('classes-content').classList.remove('hidden');
+
+                } catch (error) {
+                    console.error('Error loading classes:', error);
+                    alert('Error loading classes. Please refresh the page.');
+                }
+            }
+
+            // Display classes
+            function displayClasses(classes) {
+                const classList = document.getElementById('classes-list');
+                const noClasses = document.getElementById('no-classes');
+
+                if (classes.length === 0) {
+                    classList.classList.add('hidden');
+                    noClasses.classList.remove('hidden');
+                    return;
+                }
+
+                classList.classList.remove('hidden');
+                noClasses.classList.add('hidden');
+
+                classList.innerHTML = classes.map(classData => `
+                    <div class="class-card-large" data-class-id="${classData.id}">
+                        <div class="class-header">
+                            <div>
+                                <h3>${escapeHtml(classData.name)}</h3>
+                                <p class="class-description">${escapeHtml(classData.description || 'No description')}</p>
+                            </div>
+                            <div class="class-code-badge">
+                                <span class="code-label">Class Code</span>
+                                <span class="code-value">${classData.classCode}</span>
+                            </div>
+                        </div>
+
+                        <div class="class-info">
+                            <div class="info-item">
+                                <span class="info-icon">👥</span>
+                                <span class="info-text">${classData.studentCount || 0} students</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-icon">📚</span>
+                                <span class="info-text">${formatTheme(classData.theme)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-icon">⭐</span>
+                                <span class="info-text">${formatDifficulty(classData.difficulty)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-icon">📅</span>
+                                <span class="info-text">Created ${formatDate(classData.createdAt?.toDate())}</span>
+                            </div>
+                        </div>
+
+                        <div class="class-actions">
+                            <a href="teacher-class-detail.html?id=${classData.id}" class="btn btn-small btn-primary">
+                                📊 View Details
+                            </a>
+                            <button class="btn btn-small btn-secondary edit-class-btn" data-class-id="${classData.id}">
+                                ✏️ Edit
+                            </button>
+                            <button class="btn btn-small btn-danger delete-class-btn" data-class-id="${classData.id}">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add event listeners to edit and delete buttons
+                document.querySelectorAll('.edit-class-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openEditModal(btn.dataset.classId));
+                });
+                document.querySelectorAll('.delete-class-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openDeleteModal(btn.dataset.classId, classes));
+                });
+            }
+
+            // Generate unique class code
+            function generateClassCode() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let code = '';
+                for (let i = 0; i < 6; i++) {
+                    code += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return code;
+            }
+
+            // Open create modal
+            function openCreateModal() {
+                editingClassId = null;
+                document.getElementById('modal-title').textContent = 'Create New Class';
+                document.getElementById('submit-btn').textContent = 'Create Class';
+                document.getElementById('class-form').reset();
+                document.getElementById('modal-error').classList.add('hidden');
+                document.getElementById('class-modal').classList.remove('hidden');
+            }
+
+            // Open edit modal
+            async function openEditModal(classId) {
+                try {
+                    const classDoc = await db.collection('classes').doc(classId).get();
+                    if (!classDoc.exists) {
+                        alert('Class not found');
+                        return;
+                    }
+
+                    const classData = classDoc.data();
+                    editingClassId = classId;
+
+                    document.getElementById('modal-title').textContent = 'Edit Class';
+                    document.getElementById('submit-btn').textContent = 'Save Changes';
+                    document.getElementById('class-name').value = classData.name;
+                    document.getElementById('class-description').value = classData.description || '';
+                    document.getElementById('class-theme').value = classData.theme || 'all';
+                    document.getElementById('class-difficulty').value = classData.difficulty || 'all';
+                    document.getElementById('max-students').value = classData.maxStudents || 30;
+                    document.getElementById('modal-error').classList.add('hidden');
+                    document.getElementById('class-modal').classList.remove('hidden');
+
+                } catch (error) {
+                    console.error('Error loading class for edit:', error);
+                    alert('Error loading class data');
+                }
+            }
+
+            // Open delete modal
+            function openDeleteModal(classId, classes) {
+                deletingClassId = classId;
+                const classData = classes.find(c => c.id === classId);
+                document.getElementById('delete-class-name').textContent = classData?.name || 'this class';
+                document.getElementById('delete-modal').classList.remove('hidden');
+            }
+
+            // Close modals
+            document.getElementById('close-modal').addEventListener('click', closeClassModal);
+            document.getElementById('cancel-btn').addEventListener('click', closeClassModal);
+            document.getElementById('close-delete-modal').addEventListener('click', closeDeleteModal);
+            document.getElementById('cancel-delete-btn').addEventListener('click', closeDeleteModal);
+
+            function closeClassModal() {
+                document.getElementById('class-modal').classList.add('hidden');
+                editingClassId = null;
+            }
+
+            function closeDeleteModal() {
+                document.getElementById('delete-modal').classList.add('hidden');
+                deletingClassId = null;
+            }
+
+            // Create class buttons
+            document.getElementById('create-class-btn').addEventListener('click', openCreateModal);
+            document.getElementById('create-first-class-btn').addEventListener('click', openCreateModal);
+
+            // Submit class form
+            document.getElementById('class-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById('class-name').value.trim();
+                const description = document.getElementById('class-description').value.trim();
+                const theme = document.getElementById('class-theme').value;
+                const difficulty = document.getElementById('class-difficulty').value;
+                const maxStudents = parseInt(document.getElementById('max-students').value);
+
+                const submitBtn = document.getElementById('submit-btn');
+                const errorMsg = document.getElementById('modal-error');
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = editingClassId ? 'Saving...' : 'Creating...';
+                errorMsg.classList.add('hidden');
+
+                try {
+                    if (editingClassId) {
+                        // Update existing class
+                        await db.collection('classes').doc(editingClassId).update({
+                            name,
+                            description,
+                            theme,
+                            difficulty,
+                            maxStudents,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    } else {
+                        // Create new class
+                        const classCode = generateClassCode();
+                        await db.collection('classes').add({
+                            name,
+                            description,
+                            theme,
+                            difficulty,
+                            maxStudents,
+                            classCode,
+                            teacherId: currentTeacher.id,
+                            teacherName: `${currentTeacher.firstName} ${currentTeacher.lastName}`,
+                            studentCount: 0,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+
+                    closeClassModal();
+                    await loadClasses();
+
+                } catch (error) {
+                    console.error('Error saving class:', error);
+                    errorMsg.textContent = 'Error saving class. Please try again.';
+                    errorMsg.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = editingClassId ? 'Save Changes' : 'Create Class';
+                }
+            });
+
+            // Confirm delete
+            document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+                if (!deletingClassId) return;
+
+                const confirmBtn = document.getElementById('confirm-delete-btn');
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = 'Deleting...';
+
+                try {
+                    // Delete all students in this class
+                    const studentsSnapshot = await db.collection('students')
+                        .where('classId', '==', deletingClassId)
+                        .get();
+
+                    const deletePromises = [];
+                    studentsSnapshot.forEach(doc => {
+                        deletePromises.push(doc.ref.delete());
+                    });
+
+                    // Delete all progress records for this class
+                    const progressSnapshot = await db.collection('progress')
+                        .where('classId', '==', deletingClassId)
+                        .get();
+
+                    progressSnapshot.forEach(doc => {
+                        deletePromises.push(doc.ref.delete());
+                    });
+
+                    // Wait for all deletions
+                    await Promise.all(deletePromises);
+
+                    // Delete the class itself
+                    await db.collection('classes').doc(deletingClassId).delete();
+
+                    closeDeleteModal();
+                    await loadClasses();
+
+                } catch (error) {
+                    console.error('Error deleting class:', error);
+                    alert('Error deleting class. Please try again.');
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = 'Delete Class';
+                }
+            });
+
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    await auth.signOut();
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Helper functions
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function formatTheme(theme) {
+                if (!theme || theme === 'all') return 'All Themes';
+                return theme.split('-').map(word =>
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+            }
+
+            function formatDifficulty(difficulty) {
+                if (!difficulty || difficulty === 'all') return 'All Levels';
+                return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            }
+
+            function formatDate(date) {
+                if (!date) return 'Recently';
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+
+        } else {
+            document.getElementById('loading').innerHTML = `
+                <div class="warning-message">
+                    <h3>⚠️ Firebase Not Configured</h3>
+                    <p>Please set up your Firebase project and update the firebase-config.js file.</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

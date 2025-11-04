@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Details - VocabLab</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🧪</span>
+                    <span>VocabLab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="teacher-dashboard.html">📊 Dashboard</a>
+                    <a href="teacher-classes.html">👥 Classes</a>
+                    <a href="#" id="logout-btn">🚪 Logout</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div id="loading" class="loading-spinner">Loading class details...</div>
+
+            <div id="class-content" class="dashboard-content hidden">
+                <!-- Back Button -->
+                <a href="teacher-classes.html" class="back-link">← Back to Classes</a>
+
+                <!-- Class Header -->
+                <div class="class-detail-header">
+                    <div class="class-info-section">
+                        <h1 id="class-name">Class Name</h1>
+                        <p id="class-description" class="subtitle"></p>
+                        <div class="class-meta">
+                            <span id="class-theme" class="meta-badge">📚 Theme</span>
+                            <span id="class-difficulty" class="meta-badge">⭐ Difficulty</span>
+                        </div>
+                    </div>
+                    <div class="class-code-section">
+                        <div class="class-code-large">
+                            <span class="code-label">Class Code</span>
+                            <span id="class-code" class="code-value">ABC123</span>
+                            <button id="copy-code-btn" class="btn btn-small btn-secondary">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <h3 id="student-count">0</h3>
+                            <p>Students</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎮</div>
+                        <div class="stat-content">
+                            <h3 id="games-played">0</h3>
+                            <p>Games Played</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <h3 id="avg-score">0%</h3>
+                            <p>Average Score</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <h3 id="completion-rate">0%</h3>
+                            <p>Completion Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Students Section -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h2>👥 Students</h2>
+                        <button id="add-student-btn" class="btn btn-primary">➕ Add Student</button>
+                    </div>
+
+                    <div id="students-list" class="students-grid">
+                        <!-- Students will be loaded here -->
+                    </div>
+
+                    <div id="no-students" class="empty-state hidden">
+                        <div class="empty-icon">👥</div>
+                        <h3>No students yet</h3>
+                        <p>Share the class code <strong id="empty-class-code"></strong> with students to join</p>
+                        <button id="add-first-student-btn" class="btn btn-primary">Add Student Manually</button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Section -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h2>📊 Recent Activity</h2>
+                        <button id="export-btn" class="btn btn-secondary">📥 Export Report</button>
+                    </div>
+
+                    <div id="activity-list" class="activity-list">
+                        <!-- Activity will be loaded here -->
+                    </div>
+
+                    <div id="no-activity" class="empty-state hidden">
+                        <div class="empty-icon">📊</div>
+                        <p>No activity yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Student Modal -->
+            <div id="student-modal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Add Student</h2>
+                        <button class="modal-close" id="close-student-modal">&times;</button>
+                    </div>
+
+                    <form id="student-form">
+                        <div class="form-group">
+                            <label for="student-name">Student Name *</label>
+                            <input type="text" id="student-name" required
+                                   placeholder="e.g., Maria Garcia">
+                            <small>Enter the student's full name</small>
+                        </div>
+
+                        <div id="student-modal-error" class="error-message hidden"></div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-secondary" id="cancel-student-btn">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="add-student-submit">Add Student</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Student Detail Modal -->
+            <div id="student-detail-modal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="student-detail-name">Student Progress</h2>
+                        <button class="modal-close" id="close-detail-modal">&times;</button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="student-stats-grid">
+                            <div class="student-stat">
+                                <span class="stat-label">Games Played</span>
+                                <span id="detail-games" class="stat-value">0</span>
+                            </div>
+                            <div class="student-stat">
+                                <span class="stat-label">Average Score</span>
+                                <span id="detail-avg" class="stat-value">0%</span>
+                            </div>
+                            <div class="student-stat">
+                                <span class="stat-label">Best Score</span>
+                                <span id="detail-best" class="stat-value">0%</span>
+                            </div>
+                        </div>
+
+                        <h3>Recent Games</h3>
+                        <div id="student-progress-list" class="progress-list">
+                            <!-- Progress items will be loaded here -->
+                        </div>
+
+                        <div id="no-student-progress" class="empty-state hidden">
+                            <p>No games played yet</p>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-danger" id="remove-student-btn">Remove Student</button>
+                        <button type="button" class="btn btn-secondary" id="close-detail-btn">Close</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>🧪 VocabLab - Learn English with Fun!</p>
+            <p class="small">Interactive ESL Vocabulary Games</p>
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+        if (typeof firebaseConfig !== 'undefined' && firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            let currentTeacher = null;
+            let currentClass = null;
+            let currentClassId = null;
+            let viewingStudentId = null;
+
+            // Get class ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            currentClassId = urlParams.get('id');
+
+            if (!currentClassId) {
+                window.location.href = 'teacher-classes.html';
+            }
+
+            // Check authentication
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) {
+                    window.location.href = 'teacher-login.html';
+                    return;
+                }
+
+                try {
+                    const teacherDoc = await db.collection('teachers').doc(user.uid).get();
+                    if (!teacherDoc.exists) {
+                        await auth.signOut();
+                        window.location.href = 'teacher-login.html';
+                        return;
+                    }
+
+                    currentTeacher = { id: user.uid, ...teacherDoc.data() };
+                    await loadClassDetails();
+
+                } catch (error) {
+                    console.error('Error loading class:', error);
+                    document.getElementById('loading').textContent = 'Error loading class. Please refresh.';
+                }
+            });
+
+            // Load class details
+            async function loadClassDetails() {
+                try {
+                    const classDoc = await db.collection('classes').doc(currentClassId).get();
+
+                    if (!classDoc.exists) {
+                        alert('Class not found');
+                        window.location.href = 'teacher-classes.html';
+                        return;
+                    }
+
+                    currentClass = { id: classDoc.id, ...classDoc.data() };
+
+                    // Verify teacher owns this class
+                    if (currentClass.teacherId !== currentTeacher.id) {
+                        alert('You do not have permission to view this class');
+                        window.location.href = 'teacher-classes.html';
+                        return;
+                    }
+
+                    // Display class info
+                    document.getElementById('class-name').textContent = currentClass.name;
+                    document.getElementById('class-description').textContent = currentClass.description || 'No description';
+                    document.getElementById('class-theme').textContent = `📚 ${formatTheme(currentClass.theme)}`;
+                    document.getElementById('class-difficulty').textContent = `⭐ ${formatDifficulty(currentClass.difficulty)}`;
+                    document.getElementById('class-code').textContent = currentClass.classCode;
+                    document.getElementById('empty-class-code').textContent = currentClass.classCode;
+
+                    // Load students and activity
+                    await Promise.all([
+                        loadStudents(),
+                        loadActivity(),
+                        loadStats()
+                    ]);
+
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('class-content').classList.remove('hidden');
+
+                } catch (error) {
+                    console.error('Error loading class details:', error);
+                    alert('Error loading class details');
+                }
+            }
+
+            // Load students
+            async function loadStudents() {
+                try {
+                    const studentsSnapshot = await db.collection('students')
+                        .where('classId', '==', currentClassId)
+                        .orderBy('joinedAt', 'desc')
+                        .get();
+
+                    const students = [];
+                    studentsSnapshot.forEach(doc => {
+                        students.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    displayStudents(students);
+
+                } catch (error) {
+                    console.error('Error loading students:', error);
+                }
+            }
+
+            // Display students
+            function displayStudents(students) {
+                const studentsList = document.getElementById('students-list');
+                const noStudents = document.getElementById('no-students');
+
+                if (students.length === 0) {
+                    studentsList.classList.add('hidden');
+                    noStudents.classList.remove('hidden');
+                    return;
+                }
+
+                studentsList.classList.remove('hidden');
+                noStudents.classList.add('hidden');
+
+                studentsList.innerHTML = students.map(student => `
+                    <div class="student-card" data-student-id="${student.id}">
+                        <div class="student-avatar">
+                            ${getInitials(student.name)}
+                        </div>
+                        <div class="student-info">
+                            <h4>${escapeHtml(student.name)}</h4>
+                            <small>Joined ${formatDate(student.joinedAt?.toDate())}</small>
+                        </div>
+                        <button class="btn btn-small view-student-btn" data-student-id="${student.id}">
+                            View Progress
+                        </button>
+                    </div>
+                `).join('');
+
+                // Add click handlers
+                document.querySelectorAll('.view-student-btn').forEach(btn => {
+                    btn.addEventListener('click', () => viewStudentProgress(btn.dataset.studentId, students));
+                });
+            }
+
+            // Load activity
+            async function loadActivity() {
+                try {
+                    const activitySnapshot = await db.collection('progress')
+                        .where('classId', '==', currentClassId)
+                        .orderBy('timestamp', 'desc')
+                        .limit(20)
+                        .get();
+
+                    const activities = [];
+                    activitySnapshot.forEach(doc => {
+                        activities.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    displayActivity(activities);
+
+                } catch (error) {
+                    console.error('Error loading activity:', error);
+                }
+            }
+
+            // Display activity
+            function displayActivity(activities) {
+                const activityList = document.getElementById('activity-list');
+                const noActivity = document.getElementById('no-activity');
+
+                if (activities.length === 0) {
+                    activityList.classList.add('hidden');
+                    noActivity.classList.remove('hidden');
+                    return;
+                }
+
+                activityList.classList.remove('hidden');
+                noActivity.classList.add('hidden');
+
+                activityList.innerHTML = activities.map(activity => {
+                    const timeAgo = getTimeAgo(activity.timestamp?.toDate());
+                    const scoreClass = activity.score >= 80 ? 'score-high' : activity.score >= 60 ? 'score-medium' : 'score-low';
+                    return `
+                        <div class="activity-item">
+                            <div class="activity-icon">🎮</div>
+                            <div class="activity-content">
+                                <p><strong>${escapeHtml(activity.studentName)}</strong> completed
+                                   <strong>${activity.game}</strong></p>
+                                <small>${formatTheme(activity.theme)} • ${formatDifficulty(activity.difficulty)} • ${timeAgo}</small>
+                            </div>
+                            <div class="activity-score ${scoreClass}">
+                                ${activity.score}%
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Load stats
+            async function loadStats() {
+                try {
+                    const progressSnapshot = await db.collection('progress')
+                        .where('classId', '==', currentClassId)
+                        .get();
+
+                    let totalGames = 0;
+                    let totalScore = 0;
+                    let completedGames = 0;
+
+                    progressSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        totalGames++;
+                        if (data.score !== undefined) {
+                            totalScore += data.score;
+                            if (data.score >= 70) completedGames++;
+                        }
+                    });
+
+                    const avgScore = totalGames > 0 ? Math.round(totalScore / totalGames) : 0;
+                    const completionRate = totalGames > 0 ? Math.round((completedGames / totalGames) * 100) : 0;
+
+                    document.getElementById('student-count').textContent = currentClass.studentCount || 0;
+                    document.getElementById('games-played').textContent = totalGames;
+                    document.getElementById('avg-score').textContent = avgScore + '%';
+                    document.getElementById('completion-rate').textContent = completionRate + '%';
+
+                } catch (error) {
+                    console.error('Error loading stats:', error);
+                }
+            }
+
+            // Copy class code
+            document.getElementById('copy-code-btn').addEventListener('click', () => {
+                const code = currentClass.classCode;
+                navigator.clipboard.writeText(code).then(() => {
+                    const btn = document.getElementById('copy-code-btn');
+                    const originalText = btn.textContent;
+                    btn.textContent = '✓ Copied!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                });
+            });
+
+            // Open add student modal
+            document.getElementById('add-student-btn').addEventListener('click', openStudentModal);
+            document.getElementById('add-first-student-btn').addEventListener('click', openStudentModal);
+
+            function openStudentModal() {
+                document.getElementById('student-form').reset();
+                document.getElementById('student-modal-error').classList.add('hidden');
+                document.getElementById('student-modal').classList.remove('hidden');
+            }
+
+            // Close student modal
+            document.getElementById('close-student-modal').addEventListener('click', closeStudentModal);
+            document.getElementById('cancel-student-btn').addEventListener('click', closeStudentModal);
+
+            function closeStudentModal() {
+                document.getElementById('student-modal').classList.add('hidden');
+            }
+
+            // Add student
+            document.getElementById('student-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const name = document.getElementById('student-name').value.trim();
+                const submitBtn = document.getElementById('add-student-submit');
+                const errorMsg = document.getElementById('student-modal-error');
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Adding...';
+                errorMsg.classList.add('hidden');
+
+                try {
+                    // Add student to Firestore
+                    await db.collection('students').add({
+                        name,
+                        classId: currentClassId,
+                        className: currentClass.name,
+                        classCode: currentClass.classCode,
+                        teacherId: currentTeacher.id,
+                        joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Update class student count
+                    await db.collection('classes').doc(currentClassId).update({
+                        studentCount: firebase.firestore.FieldValue.increment(1)
+                    });
+
+                    closeStudentModal();
+                    await loadStudents();
+                    await loadStats();
+
+                } catch (error) {
+                    console.error('Error adding student:', error);
+                    errorMsg.textContent = 'Error adding student. Please try again.';
+                    errorMsg.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Student';
+                }
+            });
+
+            // View student progress
+            async function viewStudentProgress(studentId, students) {
+                viewingStudentId = studentId;
+                const student = students.find(s => s.id === studentId);
+
+                document.getElementById('student-detail-name').textContent = `${student.name}'s Progress`;
+                document.getElementById('student-detail-modal').classList.remove('hidden');
+
+                try {
+                    const progressSnapshot = await db.collection('progress')
+                        .where('studentId', '==', studentId)
+                        .orderBy('timestamp', 'desc')
+                        .limit(10)
+                        .get();
+
+                    const progressItems = [];
+                    progressSnapshot.forEach(doc => {
+                        progressItems.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    // Calculate stats
+                    let totalScore = 0;
+                    let bestScore = 0;
+
+                    progressItems.forEach(item => {
+                        totalScore += item.score || 0;
+                        if (item.score > bestScore) bestScore = item.score;
+                    });
+
+                    const avgScore = progressItems.length > 0 ? Math.round(totalScore / progressItems.length) : 0;
+
+                    document.getElementById('detail-games').textContent = progressItems.length;
+                    document.getElementById('detail-avg').textContent = avgScore + '%';
+                    document.getElementById('detail-best').textContent = bestScore + '%';
+
+                    // Display progress list
+                    const progressList = document.getElementById('student-progress-list');
+                    const noProgress = document.getElementById('no-student-progress');
+
+                    if (progressItems.length === 0) {
+                        progressList.classList.add('hidden');
+                        noProgress.classList.remove('hidden');
+                    } else {
+                        progressList.classList.remove('hidden');
+                        noProgress.classList.add('hidden');
+
+                        progressList.innerHTML = progressItems.map(item => `
+                            <div class="progress-item">
+                                <div class="progress-info">
+                                    <strong>${item.game}</strong>
+                                    <small>${formatTheme(item.theme)} • ${getTimeAgo(item.timestamp?.toDate())}</small>
+                                </div>
+                                <div class="progress-score">${item.score}%</div>
+                            </div>
+                        `).join('');
+                    }
+
+                } catch (error) {
+                    console.error('Error loading student progress:', error);
+                }
+            }
+
+            // Close student detail modal
+            document.getElementById('close-detail-modal').addEventListener('click', closeDetailModal);
+            document.getElementById('close-detail-btn').addEventListener('click', closeDetailModal);
+
+            function closeDetailModal() {
+                document.getElementById('student-detail-modal').classList.add('hidden');
+                viewingStudentId = null;
+            }
+
+            // Remove student
+            document.getElementById('remove-student-btn').addEventListener('click', async () => {
+                if (!viewingStudentId) return;
+
+                if (!confirm('Are you sure you want to remove this student? This will also delete their progress data.')) {
+                    return;
+                }
+
+                try {
+                    // Delete student's progress
+                    const progressSnapshot = await db.collection('progress')
+                        .where('studentId', '==', viewingStudentId)
+                        .get();
+
+                    const deletePromises = [];
+                    progressSnapshot.forEach(doc => {
+                        deletePromises.push(doc.ref.delete());
+                    });
+
+                    await Promise.all(deletePromises);
+
+                    // Delete student
+                    await db.collection('students').doc(viewingStudentId).delete();
+
+                    // Update class student count
+                    await db.collection('classes').doc(currentClassId).update({
+                        studentCount: firebase.firestore.FieldValue.increment(-1)
+                    });
+
+                    closeDetailModal();
+                    await loadStudents();
+                    await loadActivity();
+                    await loadStats();
+
+                } catch (error) {
+                    console.error('Error removing student:', error);
+                    alert('Error removing student. Please try again.');
+                }
+            });
+
+            // Export report
+            document.getElementById('export-btn').addEventListener('click', async () => {
+                try {
+                    // Get all students and their progress
+                    const studentsSnapshot = await db.collection('students')
+                        .where('classId', '==', currentClassId)
+                        .get();
+
+                    const progressSnapshot = await db.collection('progress')
+                        .where('classId', '==', currentClassId)
+                        .orderBy('timestamp', 'desc')
+                        .get();
+
+                    // Build CSV
+                    let csv = 'Student Name,Game,Theme,Difficulty,Score,Date\n';
+
+                    progressSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const date = data.timestamp?.toDate().toLocaleDateString() || 'N/A';
+                        csv += `"${data.studentName}","${data.game}","${formatTheme(data.theme)}","${formatDifficulty(data.difficulty)}",${data.score}%,${date}\n`;
+                    });
+
+                    // Download CSV
+                    const blob = new Blob([csv], { type: 'text/csv' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${currentClass.name.replace(/[^a-z0-9]/gi, '_')}_report.csv`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+
+                } catch (error) {
+                    console.error('Error exporting report:', error);
+                    alert('Error exporting report. Please try again.');
+                }
+            });
+
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    await auth.signOut();
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Helper functions
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function formatTheme(theme) {
+                if (!theme || theme === 'all') return 'All Themes';
+                return theme.split('-').map(word =>
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+            }
+
+            function formatDifficulty(difficulty) {
+                if (!difficulty || difficulty === 'all') return 'All Levels';
+                return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            }
+
+            function formatDate(date) {
+                if (!date) return 'Recently';
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+
+            function getTimeAgo(date) {
+                if (!date) return 'Just now';
+                const seconds = Math.floor((new Date() - date) / 1000);
+                if (seconds < 60) return 'Just now';
+                if (seconds < 3600) return Math.floor(seconds / 60) + ' minutes ago';
+                if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+                return Math.floor(seconds / 86400) + ' days ago';
+            }
+
+            function getInitials(name) {
+                return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            }
+
+        } else {
+            document.getElementById('loading').innerHTML = `
+                <div class="warning-message">
+                    <h3>⚠️ Firebase Not Configured</h3>
+                    <p>Please set up your Firebase project and update the firebase-config.js file.</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

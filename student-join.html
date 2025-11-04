@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Class - VocabLab</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🧪</span>
+                    <span>VocabLab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">🏠 Home</a>
+                    <a href="vocabulary.html">📚 Words</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div class="auth-container">
+                <div class="auth-card" style="max-width: 500px; margin: 0 auto;">
+                    <div class="auth-header">
+                        <h1>👋 Join Your Class</h1>
+                        <p>Enter the class code your teacher gave you</p>
+                    </div>
+
+                    <!-- Step 1: Enter Class Code -->
+                    <div id="step-code" class="join-step">
+                        <form id="code-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="class-code">Class Code</label>
+                                <input type="text" id="class-code" name="class-code" required
+                                       placeholder="ABC123" maxlength="6"
+                                       style="text-transform: uppercase; text-align: center; font-size: 2rem; letter-spacing: 4px; font-family: 'Courier New', monospace;">
+                                <small>Ask your teacher for the 6-character class code</small>
+                            </div>
+
+                            <div id="code-error" class="error-message hidden"></div>
+
+                            <button type="submit" class="btn btn-primary btn-large" id="check-code-btn">
+                                Continue
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Step 2: Enter Name -->
+                    <div id="step-name" class="join-step hidden">
+                        <div class="class-preview">
+                            <h3>You're joining:</h3>
+                            <div class="class-preview-card">
+                                <h2 id="preview-class-name">Class Name</h2>
+                                <p id="preview-teacher-name">Teacher Name</p>
+                                <div class="preview-meta">
+                                    <span id="preview-theme">📚 Theme</span>
+                                    <span id="preview-difficulty">⭐ Level</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="name-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="student-name">Your Name</label>
+                                <input type="text" id="student-name" name="student-name" required
+                                       placeholder="Enter your full name">
+                                <small>This is how your teacher will see you</small>
+                            </div>
+
+                            <div id="name-error" class="error-message hidden"></div>
+
+                            <div class="button-group">
+                                <button type="button" class="btn btn-secondary" id="back-btn">
+                                    Back
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="join-btn">
+                                    Join Class
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Step 3: Success -->
+                    <div id="step-success" class="join-step hidden">
+                        <div class="success-state">
+                            <div class="success-icon">✅</div>
+                            <h2>Welcome to the class!</h2>
+                            <p>You've successfully joined <strong id="success-class-name">Class Name</strong></p>
+
+                            <div class="success-info">
+                                <p>Your progress will now be tracked by your teacher.</p>
+                                <p>Start playing games to learn vocabulary!</p>
+                            </div>
+
+                            <a href="index.html" class="btn btn-primary btn-large">
+                                Start Learning
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Sidebar -->
+                <div class="features-sidebar">
+                    <h3>💡 What is a Class Code?</h3>
+                    <div class="info-box">
+                        <p>Your teacher creates a class and gets a special 6-character code (like <strong>ABC123</strong>).</p>
+                        <p>When you enter this code and your name, you'll join the class and your teacher can see your progress!</p>
+                    </div>
+
+                    <h3>🎮 What happens next?</h3>
+                    <ul class="feature-list">
+                        <li>Play any of the 6 vocabulary games</li>
+                        <li>Your scores are automatically saved</li>
+                        <li>Your teacher can see your progress</li>
+                        <li>Learn English vocabulary while having fun!</li>
+                    </ul>
+
+                    <h3>🔒 Privacy</h3>
+                    <div class="info-box">
+                        <p>Only your teacher can see your progress. We don't collect any personal information besides your name.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>🧪 VocabLab - Learn English with Fun!</p>
+            <p class="small">Interactive ESL Vocabulary Games</p>
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+        if (typeof firebaseConfig !== 'undefined' && firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+
+            let foundClass = null;
+
+            // Auto-uppercase class code input
+            document.getElementById('class-code').addEventListener('input', function(e) {
+                e.target.value = e.target.value.toUpperCase();
+            });
+
+            // Step 1: Check class code
+            document.getElementById('code-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const classCode = document.getElementById('class-code').value.trim().toUpperCase();
+                const checkBtn = document.getElementById('check-code-btn');
+                const errorMsg = document.getElementById('code-error');
+
+                checkBtn.disabled = true;
+                checkBtn.textContent = 'Checking...';
+                errorMsg.classList.add('hidden');
+
+                try {
+                    // Look up class by code
+                    const classSnapshot = await db.collection('classes')
+                        .where('classCode', '==', classCode)
+                        .limit(1)
+                        .get();
+
+                    if (classSnapshot.empty) {
+                        errorMsg.textContent = 'Class code not found. Please check with your teacher.';
+                        errorMsg.classList.remove('hidden');
+                        checkBtn.disabled = false;
+                        checkBtn.textContent = 'Continue';
+                        return;
+                    }
+
+                    // Get class data
+                    const classDoc = classSnapshot.docs[0];
+                    foundClass = { id: classDoc.id, ...classDoc.data() };
+
+                    // Check if class is full
+                    const currentStudents = foundClass.studentCount || 0;
+                    const maxStudents = foundClass.maxStudents || 30;
+
+                    if (currentStudents >= maxStudents) {
+                        errorMsg.textContent = `This class is full (${maxStudents}/${maxStudents} students). Please contact your teacher.`;
+                        errorMsg.classList.remove('hidden');
+                        checkBtn.disabled = false;
+                        checkBtn.textContent = 'Continue';
+                        return;
+                    }
+
+                    // Show class preview and name form
+                    document.getElementById('preview-class-name').textContent = foundClass.name;
+                    document.getElementById('preview-teacher-name').textContent = `Teacher: ${foundClass.teacherName}`;
+                    document.getElementById('preview-theme').textContent = `📚 ${formatTheme(foundClass.theme)}`;
+                    document.getElementById('preview-difficulty').textContent = `⭐ ${formatDifficulty(foundClass.difficulty)}`;
+
+                    // Move to step 2
+                    document.getElementById('step-code').classList.add('hidden');
+                    document.getElementById('step-name').classList.remove('hidden');
+
+                } catch (error) {
+                    console.error('Error checking class code:', error);
+                    errorMsg.textContent = 'Error connecting to server. Please try again.';
+                    errorMsg.classList.remove('hidden');
+                    checkBtn.disabled = false;
+                    checkBtn.textContent = 'Continue';
+                }
+            });
+
+            // Back button
+            document.getElementById('back-btn').addEventListener('click', () => {
+                document.getElementById('step-name').classList.add('hidden');
+                document.getElementById('step-code').classList.remove('hidden');
+                document.getElementById('check-code-btn').disabled = false;
+                document.getElementById('check-code-btn').textContent = 'Continue';
+            });
+
+            // Step 2: Join class with name
+            document.getElementById('name-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const studentName = document.getElementById('student-name').value.trim();
+                const joinBtn = document.getElementById('join-btn');
+                const errorMsg = document.getElementById('name-error');
+
+                joinBtn.disabled = true;
+                joinBtn.textContent = 'Joining...';
+                errorMsg.classList.add('hidden');
+
+                try {
+                    // Check if student already exists in this class
+                    const existingSnapshot = await db.collection('students')
+                        .where('classId', '==', foundClass.id)
+                        .where('name', '==', studentName)
+                        .limit(1)
+                        .get();
+
+                    let studentId;
+
+                    if (!existingSnapshot.empty) {
+                        // Student already exists, use existing ID
+                        studentId = existingSnapshot.docs[0].id;
+                        console.log('Student already in class, using existing record');
+                    } else {
+                        // Create new student record
+                        const studentRef = await db.collection('students').add({
+                            name: studentName,
+                            classId: foundClass.id,
+                            className: foundClass.name,
+                            classCode: foundClass.classCode,
+                            teacherId: foundClass.teacherId,
+                            joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        studentId = studentRef.id;
+
+                        // Increment student count
+                        await db.collection('classes').doc(foundClass.id).update({
+                            studentCount: firebase.firestore.FieldValue.increment(1)
+                        });
+                    }
+
+                    // Store student info in localStorage for progress tracking
+                    localStorage.setItem('vocablab_student', JSON.stringify({
+                        id: studentId,
+                        name: studentName,
+                        classId: foundClass.id,
+                        className: foundClass.name,
+                        teacherId: foundClass.teacherId
+                    }));
+
+                    // Show success
+                    document.getElementById('success-class-name').textContent = foundClass.name;
+                    document.getElementById('step-name').classList.add('hidden');
+                    document.getElementById('step-success').classList.remove('hidden');
+
+                } catch (error) {
+                    console.error('Error joining class:', error);
+                    errorMsg.textContent = 'Error joining class. Please try again.';
+                    errorMsg.classList.remove('hidden');
+                    joinBtn.disabled = false;
+                    joinBtn.textContent = 'Join Class';
+                }
+            });
+
+            // Helper functions
+            function formatTheme(theme) {
+                if (!theme || theme === 'all') return 'All Themes';
+                return theme.split('-').map(word =>
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+            }
+
+            function formatDifficulty(difficulty) {
+                if (!difficulty || difficulty === 'all') return 'All Levels';
+                return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            }
+
+        } else {
+            document.querySelector('.auth-card').innerHTML = `
+                <div class="warning-message">
+                    <h3>⚠️ Firebase Not Configured</h3>
+                    <p>Please set up your Firebase project to join classes.</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
