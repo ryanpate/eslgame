@@ -167,6 +167,13 @@ main {
     margin-bottom: var(--spacing-xl);
 }
 
+.hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
 .title {
     font-size: clamp(2rem, 5vw, 3.5rem);
     margin-bottom: var(--spacing-md);
@@ -2301,6 +2308,132 @@ input:focus-visible {
 
 .btn-danger:active {
     transform: translateY(0);
+}
+
+/* ============================================
+   STUDENT JOIN PAGE
+   ============================================ */
+
+.join-step {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.class-preview {
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+}
+
+.class-preview h3 {
+    color: var(--text-gray);
+    margin-bottom: var(--spacing-md);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.class-preview-card {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.class-preview-card h2 {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: 1.8rem;
+}
+
+.class-preview-card p {
+    margin: 0 0 var(--spacing-md) 0;
+    opacity: 0.9;
+    font-size: 1rem;
+}
+
+.preview-meta {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.preview-meta span {
+    background: rgba(255, 255, 255, 0.2);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.button-group {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.button-group .btn {
+    flex: 1;
+}
+
+.success-state {
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+}
+
+.success-icon {
+    font-size: 5rem;
+    margin-bottom: var(--spacing-lg);
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+.success-state h2 {
+    color: var(--text-light);
+    margin-bottom: var(--spacing-md);
+}
+
+.success-state p {
+    color: var(--text-gray);
+    margin-bottom: var(--spacing-sm);
+}
+
+.success-info {
+    background: var(--hover-bg);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    margin: var(--spacing-xl) 0;
+}
+
+.success-info p {
+    margin: var(--spacing-sm) 0;
+}
+
+.info-box {
+    background: var(--hover-bg);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+    border-left: 4px solid var(--primary-color);
+}
+
+.info-box p {
+    color: var(--text-gray);
+    margin: var(--spacing-xs) 0;
+    line-height: 1.6;
+}
+
+.info-box strong {
+    color: var(--primary-color);
+    font-family: 'Courier New', monospace;
+    font-size: 1.1em;
 }
 
 /* ============================================
