@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Login - VocabLab</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🧪</span>
+                    <span>VocabLab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">🏠 Home</a>
+                    <a href="teacher-signup.html">Create Account</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1>👨‍🏫 Teacher Login</h1>
+                        <p>Access your VocabLab teacher dashboard</p>
+                    </div>
+
+                    <form id="login-form" class="auth-form">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required
+                                   placeholder="teacher@school.com" autocomplete="email">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required
+                                   placeholder="Enter your password" autocomplete="current-password">
+                        </div>
+
+                        <div class="form-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="remember" name="remember">
+                                <span>Remember me</span>
+                            </label>
+                            <a href="teacher-reset-password.html" class="forgot-link">Forgot password?</a>
+                        </div>
+
+                        <div id="error-message" class="error-message hidden"></div>
+
+                        <button type="submit" class="btn btn-primary btn-large" id="login-btn">
+                            Log In
+                        </button>
+                    </form>
+
+                    <div class="auth-footer">
+                        <p>Don't have an account? <a href="teacher-signup.html">Sign up here</a></p>
+                        <p class="small-text">Are you a student? <a href="student-login.html">Student login</a></p>
+                    </div>
+                </div>
+
+                <div class="features-sidebar">
+                    <h3>Teacher Dashboard Features</h3>
+                    <ul class="feature-list">
+                        <li>📊 Track student progress</li>
+                        <li>👥 Manage multiple classes</li>
+                        <li>📝 Create custom word lists</li>
+                        <li>📈 View detailed reports</li>
+                        <li>🎯 Assign specific games</li>
+                        <li>📄 Export student data</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>🧪 VocabLab - Learn English with Fun!</p>
+            <p class="small">Interactive ESL Vocabulary Games</p>
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+        // Initialize Firebase
+        if (typeof firebaseConfig !== 'undefined' && firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            // Check if already logged in
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // User is signed in, redirect to dashboard
+                    window.location.href = 'teacher-dashboard.html';
+                }
+            });
+
+            // Handle form submission
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const loginBtn = document.getElementById('login-btn');
+                const errorMessage = document.getElementById('error-message');
+
+                // Disable button and show loading
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Logging in...';
+                errorMessage.classList.add('hidden');
+
+                try {
+                    // Sign in with email and password
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+
+                    // Check if user is a teacher
+                    const teacherDoc = await db.collection('teachers').doc(user.uid).get();
+
+                    if (!teacherDoc.exists) {
+                        throw new Error('This account is not registered as a teacher.');
+                    }
+
+                    // Redirect to dashboard
+                    window.location.href = 'teacher-dashboard.html';
+
+                } catch (error) {
+                    console.error('Login error:', error);
+
+                    // Show error message
+                    errorMessage.classList.remove('hidden');
+
+                    switch (error.code) {
+                        case 'auth/invalid-email':
+                            errorMessage.textContent = 'Invalid email address.';
+                            break;
+                        case 'auth/user-disabled':
+                            errorMessage.textContent = 'This account has been disabled.';
+                            break;
+                        case 'auth/user-not-found':
+                            errorMessage.textContent = 'No account found with this email.';
+                            break;
+                        case 'auth/wrong-password':
+                            errorMessage.textContent = 'Incorrect password.';
+                            break;
+                        case 'auth/too-many-requests':
+                            errorMessage.textContent = 'Too many failed attempts. Please try again later.';
+                            break;
+                        default:
+                            errorMessage.textContent = error.message || 'Login failed. Please try again.';
+                    }
+
+                    // Re-enable button
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Log In';
+                }
+            });
+
+        } else {
+            // Firebase not configured
+            document.getElementById('login-form').innerHTML = `
+                <div class="warning-message">
+                    <h3>⚠️ Firebase Not Configured</h3>
+                    <p>Please set up your Firebase project and update the firebase-config.js file.</p>
+                    <p>See the setup instructions in firebase-config.js</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

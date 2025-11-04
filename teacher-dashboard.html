@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - VocabLab</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🧪</span>
+                    <span>VocabLab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="teacher-dashboard.html">📊 Dashboard</a>
+                    <a href="teacher-classes.html">👥 Classes</a>
+                    <a href="#" id="logout-btn">🚪 Logout</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div id="loading" class="loading-spinner">Loading...</div>
+
+            <div id="dashboard-content" class="dashboard-content hidden">
+                <!-- Welcome Section -->
+                <div class="dashboard-header">
+                    <div class="welcome-section">
+                        <h1>Welcome back, <span id="teacher-name">Teacher</span>! 👋</h1>
+                        <p class="subtitle">Here's what's happening with your classes today</p>
+                    </div>
+                    <div class="quick-actions">
+                        <a href="teacher-classes.html?action=new" class="btn btn-primary">
+                            ➕ Create New Class
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <h3 id="total-students">0</h3>
+                            <p>Total Students</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-content">
+                            <h3 id="total-classes">0</h3>
+                            <p>Active Classes</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🎮</div>
+                        <div class="stat-content">
+                            <h3 id="games-played">0</h3>
+                            <p>Games Played</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <h3 id="avg-score">0%</h3>
+                            <p>Average Score</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Classes Section -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h2>📚 Your Classes</h2>
+                        <a href="teacher-classes.html" class="view-all-link">View All →</a>
+                    </div>
+
+                    <div id="classes-list" class="classes-grid">
+                        <!-- Classes will be loaded here -->
+                    </div>
+
+                    <div id="no-classes" class="empty-state hidden">
+                        <div class="empty-icon">📚</div>
+                        <h3>No classes yet</h3>
+                        <p>Create your first class to start tracking student progress</p>
+                        <a href="teacher-classes.html?action=new" class="btn btn-primary">
+                            Create Your First Class
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h2>📊 Recent Activity</h2>
+                    </div>
+
+                    <div id="recent-activity" class="activity-list">
+                        <!-- Recent activity will be loaded here -->
+                    </div>
+
+                    <div id="no-activity" class="empty-state hidden">
+                        <div class="empty-icon">📊</div>
+                        <p>No recent activity yet</p>
+                    </div>
+                </div>
+
+                <!-- Quick Start Guide (for new teachers) -->
+                <div id="quick-start" class="dashboard-section quick-start-guide">
+                    <div class="section-header">
+                        <h2>🚀 Quick Start Guide</h2>
+                    </div>
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <div class="step-number">1</div>
+                            <h3>Create a Class</h3>
+                            <p>Set up your first class with a name and description</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">2</div>
+                            <h3>Add Students</h3>
+                            <p>Give students a class code to join, or add them manually</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">3</div>
+                            <h3>Assign Games</h3>
+                            <p>Choose vocabulary themes and games for your students</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">4</div>
+                            <h3>Track Progress</h3>
+                            <p>Monitor student performance and export reports</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>🧪 VocabLab - Learn English with Fun!</p>
+            <p class="small">Interactive ESL Vocabulary Games</p>
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+        if (typeof firebaseConfig !== 'undefined' && firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            let currentTeacher = null;
+
+            // Check authentication
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) {
+                    window.location.href = 'teacher-login.html';
+                    return;
+                }
+
+                try {
+                    // Load teacher data
+                    const teacherDoc = await db.collection('teachers').doc(user.uid).get();
+
+                    if (!teacherDoc.exists) {
+                        console.error('Teacher document not found');
+                        await auth.signOut();
+                        window.location.href = 'teacher-login.html';
+                        return;
+                    }
+
+                    currentTeacher = { id: user.uid, ...teacherDoc.data() };
+
+                    // Load dashboard
+                    await loadDashboard();
+
+                } catch (error) {
+                    console.error('Error loading dashboard:', error);
+                    document.getElementById('loading').textContent = 'Error loading dashboard. Please refresh.';
+                }
+            });
+
+            // Load dashboard data
+            async function loadDashboard() {
+                try {
+                    // Show teacher name
+                    document.getElementById('teacher-name').textContent =
+                        currentTeacher.firstName || currentTeacher.displayName || 'Teacher';
+
+                    // Load classes
+                    const classesSnapshot = await db.collection('classes')
+                        .where('teacherId', '==', currentTeacher.id)
+                        .orderBy('createdAt', 'desc')
+                        .get();
+
+                    const classes = [];
+                    classesSnapshot.forEach(doc => {
+                        classes.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    // Update stats
+                    let totalStudents = 0;
+                    let totalGamesPlayed = 0;
+                    let totalScore = 0;
+                    let scoreCount = 0;
+
+                    for (const classData of classes) {
+                        totalStudents += classData.studentCount || 0;
+                    }
+
+                    // Get progress data for stats
+                    const progressSnapshot = await db.collection('progress')
+                        .where('teacherId', '==', currentTeacher.id)
+                        .limit(100)
+                        .get();
+
+                    progressSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        totalGamesPlayed++;
+                        if (data.score !== undefined) {
+                            totalScore += data.score;
+                            scoreCount++;
+                        }
+                    });
+
+                    const avgScore = scoreCount > 0 ? Math.round((totalScore / scoreCount)) : 0;
+
+                    // Update UI
+                    document.getElementById('total-students').textContent = totalStudents;
+                    document.getElementById('total-classes').textContent = classes.length;
+                    document.getElementById('games-played').textContent = totalGamesPlayed;
+                    document.getElementById('avg-score').textContent = avgScore + '%';
+
+                    // Display classes
+                    displayClasses(classes);
+
+                    // Load recent activity
+                    await loadRecentActivity();
+
+                    // Hide quick start if teacher has classes
+                    if (classes.length > 0) {
+                        document.getElementById('quick-start').style.display = 'none';
+                    }
+
+                    // Hide loading, show content
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('dashboard-content').classList.remove('hidden');
+
+                } catch (error) {
+                    console.error('Error loading dashboard data:', error);
+                    alert('Error loading dashboard. Please refresh the page.');
+                }
+            }
+
+            // Display classes
+            function displayClasses(classes) {
+                const classList = document.getElementById('classes-list');
+                const noClasses = document.getElementById('no-classes');
+
+                if (classes.length === 0) {
+                    classList.classList.add('hidden');
+                    noClasses.classList.remove('hidden');
+                    return;
+                }
+
+                classList.classList.remove('hidden');
+                noClasses.classList.add('hidden');
+
+                classList.innerHTML = classes.slice(0, 4).map(classData => `
+                    <div class="class-card">
+                        <div class="class-header">
+                            <h3>${escapeHtml(classData.name)}</h3>
+                            <span class="class-code">${classData.classCode}</span>
+                        </div>
+                        <div class="class-stats">
+                            <div class="class-stat">
+                                <span class="stat-label">Students:</span>
+                                <span class="stat-value">${classData.studentCount || 0}</span>
+                            </div>
+                            <div class="class-stat">
+                                <span class="stat-label">Theme:</span>
+                                <span class="stat-value">${formatTheme(classData.theme)}</span>
+                            </div>
+                        </div>
+                        <div class="class-actions">
+                            <a href="teacher-class-detail.html?id=${classData.id}" class="btn btn-small">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Load recent activity
+            async function loadRecentActivity() {
+                try {
+                    const activityList = document.getElementById('recent-activity');
+                    const noActivity = document.getElementById('no-activity');
+
+                    const progressSnapshot = await db.collection('progress')
+                        .where('teacherId', '==', currentTeacher.id)
+                        .orderBy('timestamp', 'desc')
+                        .limit(10)
+                        .get();
+
+                    if (progressSnapshot.empty) {
+                        activityList.classList.add('hidden');
+                        noActivity.classList.remove('hidden');
+                        return;
+                    }
+
+                    activityList.classList.remove('hidden');
+                    noActivity.classList.add('hidden');
+
+                    const activities = [];
+                    progressSnapshot.forEach(doc => {
+                        activities.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    activityList.innerHTML = activities.map(activity => {
+                        const timeAgo = getTimeAgo(activity.timestamp?.toDate());
+                        return `
+                            <div class="activity-item">
+                                <div class="activity-icon">🎮</div>
+                                <div class="activity-content">
+                                    <p><strong>${escapeHtml(activity.studentName)}</strong> completed
+                                       <strong>${activity.game}</strong> in <strong>${activity.className}</strong></p>
+                                    <small>Score: ${activity.score}% • ${timeAgo}</small>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                } catch (error) {
+                    console.error('Error loading recent activity:', error);
+                }
+            }
+
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    await auth.signOut();
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Helper functions
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function formatTheme(theme) {
+                if (!theme) return 'All Themes';
+                return theme.split('-').map(word =>
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+            }
+
+            function getTimeAgo(date) {
+                if (!date) return 'Just now';
+                const seconds = Math.floor((new Date() - date) / 1000);
+                if (seconds < 60) return 'Just now';
+                if (seconds < 3600) return Math.floor(seconds / 60) + ' minutes ago';
+                if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+                return Math.floor(seconds / 86400) + ' days ago';
+            }
+
+        } else {
+            document.getElementById('loading').innerHTML = `
+                <div class="warning-message">
+                    <h3>⚠️ Firebase Not Configured</h3>
+                    <p>Please set up your Firebase project and update the firebase-config.js file.</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
