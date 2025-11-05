@@ -50,6 +50,14 @@
 
                     <button class="btn btn-primary btn-large" id="start-btn">Start Challenge!</button>
                 </div>
+
+                <!-- Leaderboard -->
+                <div class="leaderboard" id="leaderboard">
+                    <h3>🏆 Top Scores</h3>
+                    <div id="leaderboard-list" class="leaderboard-list">
+                        <!-- Leaderboard entries will be inserted here -->
+                    </div>
+                </div>
             </div>
 
             <div id="complete-popup" class="popup hidden">
@@ -238,6 +246,10 @@
 
             document.getElementById('complete-popup').classList.remove('hidden');
 
+            // Save to leaderboard
+            saveToLeaderboard(score, accuracy);
+            displayLeaderboard();
+
             // Save progress if student is logged in
             const params = VocabLabProgress.getGameParams();
             VocabLabProgress.saveProgress({
@@ -251,6 +263,55 @@
             });
         }
 
+        // Leaderboard functions
+        function getLeaderboardKey() {
+            return `vocablab_speed_leaderboard_${theme}_${difficulty}`;
+        }
+
+        function saveToLeaderboard(score, accuracy) {
+            const key = getLeaderboardKey();
+            let leaderboard = JSON.parse(localStorage.getItem(key) || '[]');
+
+            const entry = {
+                score: score,
+                accuracy: accuracy,
+                date: new Date().toISOString(),
+                timestamp: Date.now()
+            };
+
+            leaderboard.push(entry);
+            leaderboard.sort((a, b) => b.score - a.score || b.accuracy - a.accuracy);
+            leaderboard = leaderboard.slice(0, 10); // Keep top 10
+
+            localStorage.setItem(key, JSON.stringify(leaderboard));
+        }
+
+        function displayLeaderboard() {
+            const key = getLeaderboardKey();
+            const leaderboard = JSON.parse(localStorage.getItem(key) || '[]');
+            const listDiv = document.getElementById('leaderboard-list');
+
+            if (leaderboard.length === 0) {
+                listDiv.innerHTML = '<p class="no-scores">No scores yet. Be the first!</p>';
+                return;
+            }
+
+            listDiv.innerHTML = leaderboard.map((entry, index) => {
+                const date = new Date(entry.date);
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                return `
+                    <div class="leaderboard-entry ${index < 3 ? 'top-three' : ''}">
+                        <span class="rank">${medal}</span>
+                        <span class="score-info">
+                            <strong>${entry.score} points</strong>
+                            <small>${entry.accuracy}% accuracy</small>
+                        </span>
+                        <span class="date">${date.toLocaleDateString()}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
         // Play again
         document.getElementById('play-again-btn').addEventListener('click', function(e) {
             e.preventDefault();
@@ -259,6 +320,7 @@
 
         // Initialize
         initGame();
+        displayLeaderboard();
     </script>
 </body>
 </html>

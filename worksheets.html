@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printable Worksheets - VocabLab</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white;
+            }
+            .worksheet {
+                page-break-after: always;
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="no-print">
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🧪</span>
+                    <span>VocabLab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">🏠 Home</a>
+                    <a href="vocabulary.html">📚 Words</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div class="no-print">
+                <div class="game-header">
+                    <h1>📄 Printable Worksheets</h1>
+                    <p>Create custom vocabulary worksheets for practice and homework</p>
+                </div>
+
+                <!-- Worksheet Options -->
+                <div class="worksheet-options">
+                    <h2>Worksheet Settings</h2>
+
+                    <div class="form-group">
+                        <label for="worksheet-theme">Theme:</label>
+                        <select id="worksheet-theme" class="form-control">
+                            <option value="daily-life">🏠 Daily Life</option>
+                            <option value="nature-animals">🌿 Nature & Animals</option>
+                            <option value="technology">💻 Technology</option>
+                            <option value="business-work">💼 Business & Work</option>
+                            <option value="health-body">❤️ Health & Body</option>
+                            <option value="travel-places">✈️ Travel & Places</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="worksheet-difficulty">Difficulty:</label>
+                        <select id="worksheet-difficulty" class="form-control">
+                            <option value="all">All Levels</option>
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="worksheet-type">Worksheet Type:</label>
+                        <select id="worksheet-type" class="form-control">
+                            <option value="matching">Matching (Words to Definitions)</option>
+                            <option value="fill-blank">Fill in the Blanks</option>
+                            <option value="word-search">Word List with Definitions</option>
+                            <option value="spelling">Spelling Practice</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="word-count">Number of Words:</label>
+                        <input type="number" id="word-count" class="form-control" value="10" min="5" max="20">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="student-name">Student Name (optional):</label>
+                        <input type="text" id="student-name" class="form-control" placeholder="Leave blank for class worksheets">
+                    </div>
+
+                    <div class="form-actions">
+                        <button id="generate-btn" class="btn btn-primary">📝 Generate Worksheet</button>
+                        <button id="print-btn" class="btn btn-secondary" style="display:none;">🖨️ Print Worksheet</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Worksheet Preview -->
+            <div id="worksheet-preview">
+                <!-- Generated worksheet will appear here -->
+            </div>
+        </main>
+
+        <footer class="no-print">
+            <p>🧪 VocabLab - Learn English with Fun!</p>
+            <p class="small">Interactive ESL Vocabulary Games</p>
+        </footer>
+    </div>
+
+    <script src="js/vocabulary.js"></script>
+    <script>
+        let currentWords = [];
+
+        document.getElementById('generate-btn').addEventListener('click', generateWorksheet);
+        document.getElementById('print-btn').addEventListener('click', () => window.print());
+
+        function generateWorksheet() {
+            const theme = document.getElementById('worksheet-theme').value;
+            const difficulty = document.getElementById('worksheet-difficulty').value;
+            const type = document.getElementById('worksheet-type').value;
+            const count = parseInt(document.getElementById('word-count').value);
+            const studentName = document.getElementById('student-name').value;
+
+            // Get words for selected theme
+            const themeWords = THEMES[theme].words;
+
+            // Filter by difficulty if needed
+            let filteredWords = {};
+            if (difficulty === 'all') {
+                filteredWords = themeWords;
+            } else {
+                Object.keys(themeWords).forEach(word => {
+                    if (themeWords[word].difficulty === difficulty) {
+                        filteredWords[word] = themeWords[word];
+                    }
+                });
+            }
+
+            // Select random words
+            const wordList = Object.keys(filteredWords);
+            const selectedWords = shuffleArray(wordList).slice(0, Math.min(count, wordList.length));
+
+            currentWords = selectedWords.map(word => ({
+                word: word,
+                definition: filteredWords[word].definition,
+                hint: filteredWords[word].hint,
+                emoji: filteredWords[word].emoji
+            }));
+
+            // Generate appropriate worksheet
+            let html = '';
+            switch(type) {
+                case 'matching':
+                    html = generateMatchingWorksheet(studentName, theme, difficulty);
+                    break;
+                case 'fill-blank':
+                    html = generateFillBlankWorksheet(studentName, theme, difficulty);
+                    break;
+                case 'word-search':
+                    html = generateWordListWorksheet(studentName, theme, difficulty);
+                    break;
+                case 'spelling':
+                    html = generateSpellingWorksheet(studentName, theme, difficulty);
+                    break;
+            }
+
+            document.getElementById('worksheet-preview').innerHTML = html;
+            document.getElementById('print-btn').style.display = 'inline-block';
+        }
+
+        function generateMatchingWorksheet(studentName, theme, difficulty) {
+            const shuffledDefs = shuffleArray([...currentWords]);
+
+            return `
+                <div class="worksheet">
+                    <div class="worksheet-header">
+                        <h2>VocabLab Matching Worksheet</h2>
+                        <div class="worksheet-info">
+                            <p><strong>Theme:</strong> ${THEMES[theme].name}</p>
+                            <p><strong>Difficulty:</strong> ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</p>
+                            <p><strong>Name:</strong> ${studentName || '___________________________'}</p>
+                            <p><strong>Date:</strong> ___________________________</p>
+                        </div>
+                    </div>
+                    <div class="worksheet-instructions">
+                        <p><strong>Instructions:</strong> Match each word on the left with its correct definition on the right. Write the letter of the definition in the blank.</p>
+                    </div>
+                    <div class="worksheet-content matching-content">
+                        <div class="matching-column">
+                            <h3>Words</h3>
+                            ${currentWords.map((item, i) => `
+                                <div class="matching-item">
+                                    <span class="blank">_____</span>
+                                    <span>${i + 1}. ${item.emoji} ${item.word}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="matching-column">
+                            <h3>Definitions</h3>
+                            ${shuffledDefs.map((item, i) => `
+                                <div class="matching-item">
+                                    <span><strong>${String.fromCharCode(65 + i)}.</strong> ${item.definition}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="worksheet-footer">
+                        <p>VocabLab © ${new Date().getFullYear()} | Theme: ${THEMES[theme].emoji} ${THEMES[theme].name}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateFillBlankWorksheet(studentName, theme, difficulty) {
+            return `
+                <div class="worksheet">
+                    <div class="worksheet-header">
+                        <h2>VocabLab Fill in the Blanks</h2>
+                        <div class="worksheet-info">
+                            <p><strong>Theme:</strong> ${THEMES[theme].name}</p>
+                            <p><strong>Difficulty:</strong> ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</p>
+                            <p><strong>Name:</strong> ${studentName || '___________________________'}</p>
+                            <p><strong>Date:</strong> ___________________________</p>
+                        </div>
+                    </div>
+                    <div class="worksheet-instructions">
+                        <p><strong>Instructions:</strong> Read each sentence and fill in the blank with the correct word from the word bank.</p>
+                    </div>
+                    <div class="worksheet-content">
+                        <div class="word-bank">
+                            <h3>Word Bank</h3>
+                            <div class="word-bank-words">
+                                ${shuffleArray(currentWords.map(w => w.word)).join(' • ')}
+                            </div>
+                        </div>
+                        <div class="fill-blank-questions">
+                            ${currentWords.map((item, i) => `
+                                <div class="question-item">
+                                    <p><strong>${i + 1}.</strong> ${item.hint.replace(/\./g, '')}.</p>
+                                    <p class="answer-line">_________________ ${item.emoji}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="worksheet-footer">
+                        <p>VocabLab © ${new Date().getFullYear()} | Theme: ${THEMES[theme].emoji} ${THEMES[theme].name}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateWordListWorksheet(studentName, theme, difficulty) {
+            return `
+                <div class="worksheet">
+                    <div class="worksheet-header">
+                        <h2>VocabLab Vocabulary List</h2>
+                        <div class="worksheet-info">
+                            <p><strong>Theme:</strong> ${THEMES[theme].name}</p>
+                            <p><strong>Difficulty:</strong> ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</p>
+                            <p><strong>Name:</strong> ${studentName || '___________________________'}</p>
+                            <p><strong>Date:</strong> ___________________________</p>
+                        </div>
+                    </div>
+                    <div class="worksheet-instructions">
+                        <p><strong>Instructions:</strong> Study these vocabulary words and their definitions. Practice using them in sentences.</p>
+                    </div>
+                    <div class="worksheet-content">
+                        <table class="vocab-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Word</th>
+                                    <th>Definition</th>
+                                    <th>Practice Sentence</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${currentWords.map((item, i) => `
+                                    <tr>
+                                        <td>${i + 1}</td>
+                                        <td><strong>${item.emoji} ${item.word}</strong></td>
+                                        <td>${item.definition}</td>
+                                        <td class="practice-line">_________________<br>_________________</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="worksheet-footer">
+                        <p>VocabLab © ${new Date().getFullYear()} | Theme: ${THEMES[theme].emoji} ${THEMES[theme].name}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateSpellingWorksheet(studentName, theme, difficulty) {
+            return `
+                <div class="worksheet">
+                    <div class="worksheet-header">
+                        <h2>VocabLab Spelling Practice</h2>
+                        <div class="worksheet-info">
+                            <p><strong>Theme:</strong> ${THEMES[theme].name}</p>
+                            <p><strong>Difficulty:</strong> ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</p>
+                            <p><strong>Name:</strong> ${studentName || '___________________________'}</p>
+                            <p><strong>Date:</strong> ___________________________</p>
+                        </div>
+                    </div>
+                    <div class="worksheet-instructions">
+                        <p><strong>Instructions:</strong> Look at each definition and emoji hint. Write the correct spelling of the word on the line.</p>
+                    </div>
+                    <div class="worksheet-content">
+                        <div class="spelling-questions">
+                            ${currentWords.map((item, i) => `
+                                <div class="spelling-item">
+                                    <div class="spelling-number">${i + 1}.</div>
+                                    <div class="spelling-content">
+                                        <p>${item.emoji} <em>${item.definition}</em></p>
+                                        <div class="spelling-line">_________________________________</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="worksheet-footer">
+                        <p>VocabLab © ${new Date().getFullYear()} | Theme: ${THEMES[theme].emoji} ${THEMES[theme].name}</p>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
