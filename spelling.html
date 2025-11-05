@@ -92,6 +92,15 @@
     <!-- Progress Tracker -->
     <script src="js/progress-tracker.js"></script>
 
+    <!-- UI Components -->
+    <script src="js/ui-components.js"></script>
+
+    <!-- Game Instructions -->
+    <script src="js/game-instructions.js"></script>
+
+    <!-- Utils -->
+    <script src="js/utils.js"></script>
+
     <script src="js/vocabulary.js"></script>
     <script>
         let allWords = {};
@@ -107,7 +116,7 @@
             wordList = Object.keys(allWords);
             document.getElementById('total').textContent = wordList.length;
             document.getElementById('play-again-btn').href = `spelling.html?difficulty=${currentDifficulty}`;
-            
+
             loadWord();
 
             document.getElementById('check-btn').addEventListener('click', checkAnswer);
@@ -118,6 +127,26 @@
             });
             document.getElementById('hint-btn').addEventListener('click', showExtraHint);
             document.getElementById('skip-btn').addEventListener('click', skipWord);
+
+            // Initialize mobile features
+            if (typeof VocabLabUtils !== 'undefined') {
+                VocabLabUtils.addFullScreenButton();
+                VocabLabUtils.initMobileNavigation();
+                VocabLabUtils.optimizeTouchTargets();
+                VocabLabUtils.handleError();
+            }
+
+            // Add How to Play button
+            if (typeof addHowToPlayButton !== 'undefined') {
+                addHowToPlayButton('spelling');
+            }
+
+            // Show initial tip
+            setTimeout(() => {
+                if (typeof showContextualTip !== 'undefined') {
+                    showContextualTip('spelling', 'start');
+                }
+            }, 1000);
         });
 
         function loadWord() {

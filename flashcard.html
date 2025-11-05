@@ -90,12 +90,22 @@
     <!-- Progress Tracker -->
     <script src="js/progress-tracker.js"></script>
 
+    <!-- UI Components -->
+    <script src="js/ui-components.js"></script>
+
+    <!-- Game Instructions -->
+    <script src="js/game-instructions.js"></script>
+
+    <!-- Utils -->
+    <script src="js/utils.js"></script>
+
     <script src="js/vocabulary.js"></script>
     <script>
         let currentQuestionIndex = 0;
         let score = 0;
         let questions = [];
         let correctAnswer = '';
+        let canSwipe = false;
 
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -116,6 +126,56 @@
 
             document.getElementById('total').textContent = questions.length;
             loadQuestion();
+
+            // Initialize mobile features
+            if (typeof VocabLabUtils !== 'undefined') {
+                // Add swipe gestures for mobile
+                const flashcardDisplay = document.querySelector('.flashcard-display');
+                VocabLabUtils.addSwipeGesture(flashcardDisplay, {
+                    onSwipeLeft: () => {
+                        if (canSwipe) {
+                            nextQuestion();
+                        }
+                    }
+                });
+
+                // Add swipe indicator
+                if (VocabLabUtils.isMobileDevice()) {
+                    const swipeIndicator = document.createElement('div');
+                    swipeIndicator.className = 'swipe-indicator show';
+                    swipeIndicator.textContent = 'Swipe left for next question';
+                    flashcardDisplay.appendChild(swipeIndicator);
+
+                    // Hide after 3 seconds
+                    setTimeout(() => {
+                        swipeIndicator.classList.remove('show');
+                    }, 3000);
+                }
+
+                // Add fullscreen button
+                VocabLabUtils.addFullScreenButton();
+
+                // Initialize mobile navigation
+                VocabLabUtils.initMobileNavigation();
+
+                // Optimize touch targets
+                VocabLabUtils.optimizeTouchTargets();
+
+                // Initialize error handling
+                VocabLabUtils.handleError();
+            }
+
+            // Add How to Play button
+            if (typeof addHowToPlayButton !== 'undefined') {
+                addHowToPlayButton('flashcard');
+            }
+
+            // Show initial tip
+            setTimeout(() => {
+                if (typeof showContextualTip !== 'undefined') {
+                    showContextualTip('flashcard', 'start');
+                }
+            }, 1000);
         }
 
         // Load current question
@@ -127,6 +187,7 @@
 
             const question = questions[currentQuestionIndex];
             correctAnswer = question.word;
+            canSwipe = false; // Disable swipe until answer is selected
 
             // Update UI
             document.getElementById('current').textContent = currentQuestionIndex + 1;
@@ -207,6 +268,7 @@
             }
 
             popup.classList.remove('hidden');
+            canSwipe = true; // Enable swipe after answer is shown
         }
 
         // Next question
