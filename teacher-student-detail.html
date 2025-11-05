@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Progress - VocabLab</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🧪</span>
+                    <span>VocabLab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="teacher-dashboard.html">📊 Dashboard</a>
+                    <a href="teacher-classes.html">👥 Classes</a>
+                    <a href="#" id="logout-btn">🚪 Logout</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div id="loading" class="loading-spinner">Loading...</div>
+
+            <div id="student-content" class="student-detail-content hidden">
+                <!-- Back Button -->
+                <div class="back-nav">
+                    <a href="#" id="back-btn" class="btn btn-small">← Back to Class</a>
+                </div>
+
+                <!-- Student Info Header -->
+                <div class="student-header">
+                    <div class="student-info">
+                        <div class="student-avatar">👤</div>
+                        <div>
+                            <h1 id="student-name">Student Name</h1>
+                            <p id="class-name">Class Name</p>
+                            <p class="student-meta">
+                                Joined: <span id="join-date"></span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="student-actions">
+                        <button id="export-csv-btn" class="btn btn-primary">
+                            📥 Export Progress
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🎮</div>
+                        <div class="stat-content">
+                            <h3 id="total-games">0</h3>
+                            <p>Games Played</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-content">
+                            <h3 id="avg-score">0%</h3>
+                            <p>Average Score</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <h3 id="total-correct">0</h3>
+                            <p>Correct Answers</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-content">
+                            <h3 id="total-time">0</h3>
+                            <p>Time Spent (mins)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress by Theme -->
+                <div class="dashboard-section">
+                    <h2>📚 Progress by Theme</h2>
+                    <div id="theme-progress" class="progress-list">
+                        <!-- Theme progress bars will be loaded here -->
+                    </div>
+                    <div id="no-theme-data" class="empty-state hidden">
+                        <p>No theme data available yet</p>
+                    </div>
+                </div>
+
+                <!-- Progress by Game -->
+                <div class="dashboard-section">
+                    <h2>🎮 Progress by Game</h2>
+                    <div id="game-progress" class="progress-list">
+                        <!-- Game progress bars will be loaded here -->
+                    </div>
+                    <div id="no-game-data" class="empty-state hidden">
+                        <p>No game data available yet</p>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="dashboard-section">
+                    <h2>📊 Recent Activity</h2>
+                    <div id="activity-table" class="data-table">
+                        <!-- Activity table will be loaded here -->
+                    </div>
+                    <div id="no-activity" class="empty-state hidden">
+                        <p>No activity recorded yet</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>🧪 VocabLab - Learn English with Fun!</p>
+            <p class="small">Interactive ESL Vocabulary Games</p>
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+        if (typeof firebaseConfig !== 'undefined' && firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            let currentTeacher = null;
+            let studentData = null;
+            let classData = null;
+            let progressData = [];
+
+            // Get student ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const studentId = urlParams.get('id');
+            const classId = urlParams.get('classId');
+
+            if (!studentId) {
+                alert('No student specified');
+                window.location.href = 'teacher-dashboard.html';
+            }
+
+            // Check authentication
+            auth.onAuthStateChanged(async (user) => {
+                if (!user) {
+                    window.location.href = 'teacher-login.html';
+                    return;
+                }
+
+                try {
+                    const teacherDoc = await db.collection('teachers').doc(user.uid).get();
+                    if (!teacherDoc.exists) {
+                        await auth.signOut();
+                        window.location.href = 'teacher-login.html';
+                        return;
+                    }
+
+                    currentTeacher = { id: user.uid, ...teacherDoc.data() };
+                    await loadStudentData();
+
+                } catch (error) {
+                    console.error('Error loading student data:', error);
+                    document.getElementById('loading').textContent = 'Error loading data. Please refresh.';
+                }
+            });
+
+            // Load student data
+            async function loadStudentData() {
+                try {
+                    // Load student info
+                    const studentDoc = await db.collection('students').doc(studentId).get();
+
+                    if (!studentDoc.exists) {
+                        alert('Student not found');
+                        window.location.href = 'teacher-dashboard.html';
+                        return;
+                    }
+
+                    studentData = { id: studentDoc.id, ...studentDoc.data() };
+
+                    // Verify teacher owns this student
+                    if (studentData.teacherId !== currentTeacher.id) {
+                        alert('Access denied');
+                        window.location.href = 'teacher-dashboard.html';
+                        return;
+                    }
+
+                    // Load class info
+                    const classDoc = await db.collection('classes').doc(studentData.classId).get();
+                    classData = classDoc.exists ? { id: classDoc.id, ...classDoc.data() } : null;
+
+                    // Load progress data
+                    const progressSnapshot = await db.collection('progress')
+                        .where('studentId', '==', studentId)
+                        .orderBy('timestamp', 'desc')
+                        .get();
+
+                    progressData = [];
+                    progressSnapshot.forEach(doc => {
+                        progressData.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    // Display all data
+                    displayStudentInfo();
+                    displaySummaryStats();
+                    displayThemeProgress();
+                    displayGameProgress();
+                    displayActivityTable();
+
+                    // Setup back button
+                    document.getElementById('back-btn').href = `teacher-class-detail.html?id=${studentData.classId}`;
+
+                    // Hide loading, show content
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('student-content').classList.remove('hidden');
+
+                } catch (error) {
+                    console.error('Error loading student data:', error);
+                    alert('Error loading student data. Please try again.');
+                }
+            }
+
+            // Display student info
+            function displayStudentInfo() {
+                document.getElementById('student-name').textContent = studentData.name;
+                document.getElementById('class-name').textContent = classData ? classData.name : 'Unknown Class';
+
+                if (studentData.joinedAt) {
+                    const joinDate = studentData.joinedAt.toDate();
+                    document.getElementById('join-date').textContent = joinDate.toLocaleDateString();
+                }
+            }
+
+            // Display summary stats
+            function displaySummaryStats() {
+                const totalGames = progressData.length;
+                let totalScore = 0;
+                let totalCorrect = 0;
+                let totalTime = 0;
+                let scoreCount = 0;
+
+                progressData.forEach(record => {
+                    if (record.score !== undefined) {
+                        totalScore += record.score;
+                        scoreCount++;
+                    }
+                    if (record.correctAnswers !== undefined) {
+                        totalCorrect += record.correctAnswers;
+                    }
+                    if (record.timeSpent !== undefined) {
+                        totalTime += record.timeSpent;
+                    }
+                });
+
+                const avgScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
+
+                document.getElementById('total-games').textContent = totalGames;
+                document.getElementById('avg-score').textContent = avgScore + '%';
+                document.getElementById('total-correct').textContent = totalCorrect;
+                document.getElementById('total-time').textContent = Math.round(totalTime / 60);
+            }
+
+            // Display progress by theme
+            function displayThemeProgress() {
+                const themeStats = {};
+
+                progressData.forEach(record => {
+                    const theme = record.theme || 'unknown';
+                    if (!themeStats[theme]) {
+                        themeStats[theme] = { count: 0, totalScore: 0 };
+                    }
+                    themeStats[theme].count++;
+                    if (record.score !== undefined) {
+                        themeStats[theme].totalScore += record.score;
+                    }
+                });
+
+                const themeProgress = document.getElementById('theme-progress');
+                const noThemeData = document.getElementById('no-theme-data');
+
+                if (Object.keys(themeStats).length === 0) {
+                    themeProgress.classList.add('hidden');
+                    noThemeData.classList.remove('hidden');
+                    return;
+                }
+
+                themeProgress.classList.remove('hidden');
+                noThemeData.classList.add('hidden');
+
+                themeProgress.innerHTML = Object.entries(themeStats).map(([theme, stats]) => {
+                    const avgScore = stats.count > 0 ? Math.round(stats.totalScore / stats.count) : 0;
+                    return `
+                        <div class="progress-item">
+                            <div class="progress-info">
+                                <span class="progress-label">${formatTheme(theme)}</span>
+                                <span class="progress-value">${avgScore}% (${stats.count} games)</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: ${avgScore}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Display progress by game
+            function displayGameProgress() {
+                const gameStats = {};
+
+                progressData.forEach(record => {
+                    const game = record.game || 'Unknown Game';
+                    if (!gameStats[game]) {
+                        gameStats[game] = { count: 0, totalScore: 0 };
+                    }
+                    gameStats[game].count++;
+                    if (record.score !== undefined) {
+                        gameStats[game].totalScore += record.score;
+                    }
+                });
+
+                const gameProgress = document.getElementById('game-progress');
+                const noGameData = document.getElementById('no-game-data');
+
+                if (Object.keys(gameStats).length === 0) {
+                    gameProgress.classList.add('hidden');
+                    noGameData.classList.remove('hidden');
+                    return;
+                }
+
+                gameProgress.classList.remove('hidden');
+                noGameData.classList.add('hidden');
+
+                gameProgress.innerHTML = Object.entries(gameStats).map(([game, stats]) => {
+                    const avgScore = stats.count > 0 ? Math.round(stats.totalScore / stats.count) : 0;
+                    return `
+                        <div class="progress-item">
+                            <div class="progress-info">
+                                <span class="progress-label">${game}</span>
+                                <span class="progress-value">${avgScore}% (${stats.count} games)</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: ${avgScore}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Display activity table
+            function displayActivityTable() {
+                const activityTable = document.getElementById('activity-table');
+                const noActivity = document.getElementById('no-activity');
+
+                if (progressData.length === 0) {
+                    activityTable.classList.add('hidden');
+                    noActivity.classList.remove('hidden');
+                    return;
+                }
+
+                activityTable.classList.remove('hidden');
+                noActivity.classList.add('hidden');
+
+                activityTable.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Game</th>
+                                <th>Theme</th>
+                                <th>Difficulty</th>
+                                <th>Score</th>
+                                <th>Correct/Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${progressData.map(record => {
+                                const date = record.timestamp ? record.timestamp.toDate().toLocaleDateString() : 'N/A';
+                                const time = record.timestamp ? record.timestamp.toDate().toLocaleTimeString() : '';
+                                const correct = record.correctAnswers || 0;
+                                const total = record.totalQuestions || 0;
+                                return `
+                                    <tr>
+                                        <td>${date}<br><small>${time}</small></td>
+                                        <td>${record.game || 'Unknown'}</td>
+                                        <td>${formatTheme(record.theme)}</td>
+                                        <td>${formatDifficulty(record.difficulty)}</td>
+                                        <td><strong>${record.score || 0}%</strong></td>
+                                        <td>${correct}/${total}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Export to CSV
+            document.getElementById('export-csv-btn').addEventListener('click', function() {
+                if (progressData.length === 0) {
+                    alert('No data to export');
+                    return;
+                }
+
+                // Create CSV content
+                const headers = ['Date', 'Time', 'Game', 'Theme', 'Difficulty', 'Score', 'Correct Answers', 'Total Questions', 'Time Spent (seconds)'];
+                const rows = progressData.map(record => {
+                    const date = record.timestamp ? record.timestamp.toDate().toLocaleDateString() : 'N/A';
+                    const time = record.timestamp ? record.timestamp.toDate().toLocaleTimeString() : 'N/A';
+                    return [
+                        date,
+                        time,
+                        record.game || '',
+                        record.theme || '',
+                        record.difficulty || '',
+                        record.score || 0,
+                        record.correctAnswers || 0,
+                        record.totalQuestions || 0,
+                        record.timeSpent || 0
+                    ];
+                });
+
+                const csvContent = [headers, ...rows]
+                    .map(row => row.map(cell => `"${cell}"`).join(','))
+                    .join('\n');
+
+                // Download CSV
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${studentData.name.replace(/\s+/g, '_')}_progress_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            });
+
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    await auth.signOut();
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Helper functions
+            function formatTheme(theme) {
+                if (!theme || theme === 'all') return 'All Themes';
+                return theme.split('-').map(word =>
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+            }
+
+            function formatDifficulty(difficulty) {
+                if (!difficulty || difficulty === 'all') return 'All';
+                return difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            }
+
+        } else {
+            document.getElementById('loading').innerHTML = `
+                <div class="warning-message">
+                    <h3>⚠️ Firebase Not Configured</h3>
+                    <p>Please set up your Firebase project and update the firebase-config.js file.</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
