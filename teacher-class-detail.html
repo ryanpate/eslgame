@@ -502,11 +502,9 @@
 
             // View student progress
             async function viewStudentProgress(studentId, students) {
-                viewingStudentId = studentId;
-                const student = students.find(s => s.id === studentId);
-
-                document.getElementById('student-detail-name').textContent = `${student.name}'s Progress`;
-                document.getElementById('student-detail-modal').classList.remove('hidden');
+                // Redirect to dedicated student progress page
+                window.location.href = `teacher-student-detail.html?id=${studentId}&classId=${currentClassId}`;
+                return;
 
                 try {
                     const progressSnapshot = await db.collection('progress')

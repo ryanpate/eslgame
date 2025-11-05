@@ -1114,6 +1114,1119 @@ const TECHNOLOGY_WORDS = {
 };
 
 // ============================================
+// THEME 4: BUSINESS & WORK
+// ============================================
+const BUSINESS_WORK_WORDS = {
+    // EASY WORDS (Basic workplace vocabulary)
+    'office': {
+        definition: 'A place where people work at desks',
+        hint: 'Building where business work happens',
+        emoji: '🏢',
+        difficulty: 'easy'
+    },
+    'job': {
+        definition: 'Work that you do to earn money',
+        hint: 'Your occupation or employment',
+        emoji: '💼',
+        difficulty: 'easy'
+    },
+    'boss': {
+        definition: 'Person in charge at work',
+        hint: 'Manager or supervisor',
+        emoji: '👔',
+        difficulty: 'easy'
+    },
+    'worker': {
+        definition: 'Person who does a job',
+        hint: 'Employee who works',
+        emoji: '👷',
+        difficulty: 'easy'
+    },
+    'money': {
+        definition: 'What you use to buy things',
+        hint: 'Currency like dollars and coins',
+        emoji: '💵',
+        difficulty: 'easy'
+    },
+    'pay': {
+        definition: 'Give money for work or goods',
+        hint: 'Money you receive for working',
+        emoji: '💰',
+        difficulty: 'easy'
+    },
+    'desk': {
+        definition: 'Table where you work',
+        hint: 'Furniture for writing or computer',
+        emoji: '🪑',
+        difficulty: 'easy'
+    },
+    'meeting': {
+        definition: 'When people gather to discuss',
+        hint: 'Group discussion at work',
+        emoji: '👥',
+        difficulty: 'easy'
+    },
+    'email': {
+        definition: 'Electronic message',
+        hint: 'Digital letter sent online',
+        emoji: '📧',
+        difficulty: 'easy'
+    },
+    'phone': {
+        definition: 'Device for talking to people',
+        hint: 'Telephone for communication',
+        emoji: '📞',
+        difficulty: 'easy'
+    },
+    'company': {
+        definition: 'Business organization',
+        hint: 'Group of people working together',
+        emoji: '🏢',
+        difficulty: 'easy'
+    },
+    'customer': {
+        definition: 'Person who buys things',
+        hint: 'Someone who shops at a store',
+        emoji: '🛒',
+        difficulty: 'easy'
+    },
+    'store': {
+        definition: 'Place where things are sold',
+        hint: 'Shop where you buy products',
+        emoji: '🏪',
+        difficulty: 'easy'
+    },
+    'buy': {
+        definition: 'Purchase something with money',
+        hint: 'Give money to get something',
+        emoji: '💳',
+        difficulty: 'easy'
+    },
+    'sell': {
+        definition: 'Give something for money',
+        hint: 'Exchange product for payment',
+        emoji: '🤝',
+        difficulty: 'easy'
+    },
+    'work': {
+        definition: 'Activity to earn money',
+        hint: 'Job or tasks you do',
+        emoji: '⚙️',
+        difficulty: 'easy'
+    },
+    'team': {
+        definition: 'Group working together',
+        hint: 'Colleagues working on same goal',
+        emoji: '👫',
+        difficulty: 'easy'
+    },
+    'contract': {
+        definition: 'Written agreement',
+        hint: 'Legal document for work',
+        emoji: '📄',
+        difficulty: 'easy'
+    },
+    'salary': {
+        definition: 'Regular payment for work',
+        hint: 'Money earned each month',
+        emoji: '💵',
+        difficulty: 'easy'
+    },
+    'project': {
+        definition: 'Planned piece of work',
+        hint: 'Task with a goal and deadline',
+        emoji: '📊',
+        difficulty: 'easy'
+    },
+
+    // MEDIUM WORDS (Intermediate business vocabulary)
+    'manager': {
+        definition: 'Person who directs workers',
+        hint: 'Someone who supervises employees',
+        emoji: '👨‍💼',
+        difficulty: 'medium'
+    },
+    'employee': {
+        definition: 'Person hired to work',
+        hint: 'Worker for a company',
+        emoji: '👔',
+        difficulty: 'medium'
+    },
+    'interview': {
+        definition: 'Meeting to assess a candidate',
+        hint: 'Discussion when applying for job',
+        emoji: '🎤',
+        difficulty: 'medium'
+    },
+    'deadline': {
+        definition: 'Time when work must finish',
+        hint: 'Final date for completing task',
+        emoji: '⏰',
+        difficulty: 'medium'
+    },
+    'promotion': {
+        definition: 'Advancement to better position',
+        hint: 'Moving up in your job',
+        emoji: '📈',
+        difficulty: 'medium'
+    },
+    'resign': {
+        definition: 'Voluntarily leave a job',
+        hint: 'Quit your position',
+        emoji: '🚪',
+        difficulty: 'medium'
+    },
+    'schedule': {
+        definition: 'Plan showing times for activities',
+        hint: 'Timetable for work',
+        emoji: '📅',
+        difficulty: 'medium'
+    },
+    'profit': {
+        definition: 'Money gained from business',
+        hint: 'Earnings after expenses',
+        emoji: '💹',
+        difficulty: 'medium'
+    },
+    'client': {
+        definition: 'Person using professional services',
+        hint: 'Customer of a business',
+        emoji: '🤵',
+        difficulty: 'medium'
+    },
+    'presentation': {
+        definition: 'Formal talk with visuals',
+        hint: 'Speech showing information',
+        emoji: '📊',
+        difficulty: 'medium'
+    },
+    'invoice': {
+        definition: 'Bill for goods or services',
+        hint: 'Document requesting payment',
+        emoji: '🧾',
+        difficulty: 'medium'
+    },
+    'budget': {
+        definition: 'Plan for spending money',
+        hint: 'Financial plan for project',
+        emoji: '💰',
+        difficulty: 'medium'
+    },
+    'negotiate': {
+        definition: 'Discuss to reach agreement',
+        hint: 'Talk to make a deal',
+        emoji: '🤝',
+        difficulty: 'medium'
+    },
+    'strategy': {
+        definition: 'Plan to achieve goal',
+        hint: 'Method for success',
+        emoji: '🎯',
+        difficulty: 'medium'
+    },
+    'revenue': {
+        definition: 'Income from sales',
+        hint: 'Total money received',
+        emoji: '💵',
+        difficulty: 'medium'
+    },
+    'department': {
+        definition: 'Division of organization',
+        hint: 'Section of company with specific job',
+        emoji: '🏢',
+        difficulty: 'medium'
+    },
+    'colleague': {
+        definition: 'Person you work with',
+        hint: 'Coworker in same office',
+        emoji: '👥',
+        difficulty: 'medium'
+    },
+    'benefit': {
+        definition: 'Extra advantage from job',
+        hint: 'Perks like insurance or vacation',
+        emoji: '✨',
+        difficulty: 'medium'
+    },
+    'entrepreneur': {
+        definition: 'Person who starts business',
+        hint: 'Someone who creates company',
+        emoji: '💼',
+        difficulty: 'medium'
+    },
+    'investment': {
+        definition: 'Money put into business',
+        hint: 'Funding to make profit',
+        emoji: '📈',
+        difficulty: 'medium'
+    },
+
+    // HARD WORDS (Advanced business vocabulary)
+    'stakeholder': {
+        definition: 'Person with interest in business',
+        hint: 'Someone affected by company decisions',
+        emoji: '🎯',
+        difficulty: 'hard'
+    },
+    'merger': {
+        definition: 'Combining of two companies',
+        hint: 'Two businesses joining together',
+        emoji: '🤝',
+        difficulty: 'hard'
+    },
+    'subsidiary': {
+        definition: 'Company owned by larger one',
+        hint: 'Smaller company controlled by parent',
+        emoji: '🏢',
+        difficulty: 'hard'
+    },
+    'restructure': {
+        definition: 'Reorganize company operations',
+        hint: 'Changing how business is organized',
+        emoji: '🔄',
+        difficulty: 'hard'
+    },
+    'downsizing': {
+        definition: 'Reducing number of employees',
+        hint: 'Company laying off workers',
+        emoji: '📉',
+        difficulty: 'hard'
+    },
+    'outsource': {
+        definition: 'Contract work to external company',
+        hint: 'Hiring outside firm for tasks',
+        emoji: '🌐',
+        difficulty: 'hard'
+    },
+    'franchise': {
+        definition: 'Right to use company brand',
+        hint: 'License to operate business name',
+        emoji: '🍔',
+        difficulty: 'hard'
+    },
+    'liability': {
+        definition: 'Legal responsibility or debt',
+        hint: 'Financial obligations owed',
+        emoji: '⚖️',
+        difficulty: 'hard'
+    },
+    'equity': {
+        definition: 'Ownership value in company',
+        hint: 'Share of business ownership',
+        emoji: '📊',
+        difficulty: 'hard'
+    },
+    'dividend': {
+        definition: 'Share of company profits',
+        hint: 'Payment to shareholders',
+        emoji: '💰',
+        difficulty: 'hard'
+    },
+    'quarterly': {
+        definition: 'Every three months',
+        hint: 'Four times per year',
+        emoji: '📅',
+        difficulty: 'hard'
+    },
+    'proposal': {
+        definition: 'Formal plan or suggestion',
+        hint: 'Written offer for project',
+        emoji: '📋',
+        difficulty: 'hard'
+    },
+    'benchmark': {
+        definition: 'Standard for measuring performance',
+        hint: 'Reference point for comparison',
+        emoji: '📏',
+        difficulty: 'hard'
+    },
+    'implement': {
+        definition: 'Put plan into action',
+        hint: 'Execute or carry out strategy',
+        emoji: '⚙️',
+        difficulty: 'hard'
+    },
+    'optimize': {
+        definition: 'Make most effective',
+        hint: 'Improve efficiency',
+        emoji: '🎯',
+        difficulty: 'hard'
+    },
+    'sustainability': {
+        definition: 'Environmentally responsible practice',
+        hint: 'Long-term eco-friendly business',
+        emoji: '♻️',
+        difficulty: 'hard'
+    },
+    'innovation': {
+        definition: 'New method or idea',
+        hint: 'Creative change or invention',
+        emoji: '💡',
+        difficulty: 'hard'
+    },
+    'logistics': {
+        definition: 'Planning and managing operations',
+        hint: 'Coordinating supply and delivery',
+        emoji: '📦',
+        difficulty: 'hard'
+    },
+    'procurement': {
+        definition: 'Obtaining goods or services',
+        hint: 'Process of purchasing supplies',
+        emoji: '🛒',
+        difficulty: 'hard'
+    },
+    'recession': {
+        definition: 'Economic decline period',
+        hint: 'When economy slows down',
+        emoji: '📉',
+        difficulty: 'hard'
+    }
+};
+
+// ============================================
+// THEME 5: HEALTH & BODY
+// ============================================
+const HEALTH_BODY_WORDS = {
+    // EASY WORDS (Basic health vocabulary)
+    'head': {
+        definition: 'Top part of body with brain',
+        hint: 'Where your brain, eyes, and mouth are',
+        emoji: '👤',
+        difficulty: 'easy'
+    },
+    'face': {
+        definition: 'Front of the head',
+        hint: 'Where eyes, nose, and mouth are',
+        emoji: '👁️',
+        difficulty: 'easy'
+    },
+    'eye': {
+        definition: 'Body part for seeing',
+        hint: 'You see with these',
+        emoji: '👁️',
+        difficulty: 'easy'
+    },
+    'nose': {
+        definition: 'Body part for smelling',
+        hint: 'You breathe and smell with this',
+        emoji: '👃',
+        difficulty: 'easy'
+    },
+    'mouth': {
+        definition: 'Opening for eating and speaking',
+        hint: 'Where your teeth and tongue are',
+        emoji: '👄',
+        difficulty: 'easy'
+    },
+    'ear': {
+        definition: 'Body part for hearing',
+        hint: 'You listen with these',
+        emoji: '👂',
+        difficulty: 'easy'
+    },
+    'hand': {
+        definition: 'Body part at end of arm',
+        hint: 'You write and hold with this',
+        emoji: '✋',
+        difficulty: 'easy'
+    },
+    'foot': {
+        definition: 'Body part for walking',
+        hint: 'At the end of your leg',
+        emoji: '🦶',
+        difficulty: 'easy'
+    },
+    'leg': {
+        definition: 'Body part for standing and walking',
+        hint: 'From hip to foot',
+        emoji: '🦵',
+        difficulty: 'easy'
+    },
+    'arm': {
+        definition: 'Body part from shoulder to hand',
+        hint: 'Connects shoulder to hand',
+        emoji: '💪',
+        difficulty: 'easy'
+    },
+    'heart': {
+        definition: 'Organ that pumps blood',
+        hint: 'Beats in your chest',
+        emoji: '❤️',
+        difficulty: 'easy'
+    },
+    'sick': {
+        definition: 'Not feeling healthy',
+        hint: 'When you have illness',
+        emoji: '🤒',
+        difficulty: 'easy'
+    },
+    'doctor': {
+        definition: 'Person who treats sick people',
+        hint: 'Medical professional who helps you',
+        emoji: '👨‍⚕️',
+        difficulty: 'easy'
+    },
+    'hospital': {
+        definition: 'Place where sick people get treatment',
+        hint: 'Building for medical care',
+        emoji: '🏥',
+        difficulty: 'easy'
+    },
+    'medicine': {
+        definition: 'Drug used to treat illness',
+        hint: 'Pills or liquids that make you better',
+        emoji: '💊',
+        difficulty: 'easy'
+    },
+    'pain': {
+        definition: 'Physical hurting feeling',
+        hint: 'When something hurts',
+        emoji: '😣',
+        difficulty: 'easy'
+    },
+    'healthy': {
+        definition: 'In good physical condition',
+        hint: 'Feeling well and strong',
+        emoji: '💪',
+        difficulty: 'easy'
+    },
+    'exercise': {
+        definition: 'Physical activity for health',
+        hint: 'Moving your body to stay fit',
+        emoji: '🏃',
+        difficulty: 'easy'
+    },
+    'sleep': {
+        definition: 'Rest with eyes closed',
+        hint: 'What you do at night in bed',
+        emoji: '😴',
+        difficulty: 'easy'
+    },
+    'food': {
+        definition: 'What you eat to live',
+        hint: 'Meals and snacks for energy',
+        emoji: '🍽️',
+        difficulty: 'easy'
+    },
+
+    // MEDIUM WORDS (Intermediate health vocabulary)
+    'stomach': {
+        definition: 'Organ that digests food',
+        hint: 'Where food goes after you eat',
+        emoji: '🫃',
+        difficulty: 'medium'
+    },
+    'throat': {
+        definition: 'Passage for food and air',
+        hint: 'Inside of neck where you swallow',
+        emoji: '😷',
+        difficulty: 'medium'
+    },
+    'chest': {
+        definition: 'Front of body between neck and stomach',
+        hint: 'Where your lungs and heart are',
+        emoji: '🫁',
+        difficulty: 'medium'
+    },
+    'shoulder': {
+        definition: 'Joint connecting arm to body',
+        hint: 'Top part where arm attaches',
+        emoji: '💪',
+        difficulty: 'medium'
+    },
+    'knee': {
+        definition: 'Joint in middle of leg',
+        hint: 'Bends when you sit or walk',
+        emoji: '🦵',
+        difficulty: 'medium'
+    },
+    'ankle': {
+        definition: 'Joint connecting foot to leg',
+        hint: 'Between your leg and foot',
+        emoji: '🦶',
+        difficulty: 'medium'
+    },
+    'fever': {
+        definition: 'High body temperature from illness',
+        hint: 'When you feel hot when sick',
+        emoji: '🤒',
+        difficulty: 'medium'
+    },
+    'cough': {
+        definition: 'Force air from lungs suddenly',
+        hint: 'Sound you make when throat itches',
+        emoji: '😷',
+        difficulty: 'medium'
+    },
+    'sneeze': {
+        definition: 'Sudden expulsion of air from nose',
+        hint: 'What you do when nose tickles',
+        emoji: '🤧',
+        difficulty: 'medium'
+    },
+    'injury': {
+        definition: 'Physical harm to body',
+        hint: 'Damage from accident',
+        emoji: '🤕',
+        difficulty: 'medium'
+    },
+    'infection': {
+        definition: 'Disease from germs',
+        hint: 'Illness from bacteria or virus',
+        emoji: '🦠',
+        difficulty: 'medium'
+    },
+    'treatment': {
+        definition: 'Medical care for illness',
+        hint: 'What doctor does to help you',
+        emoji: '💉',
+        difficulty: 'medium'
+    },
+    'symptom': {
+        definition: 'Sign of illness',
+        hint: 'How sickness shows itself',
+        emoji: '🩺',
+        difficulty: 'medium'
+    },
+    'allergy': {
+        definition: 'Bad reaction to substance',
+        hint: 'When body reacts badly to something',
+        emoji: '🤧',
+        difficulty: 'medium'
+    },
+    'emergency': {
+        definition: 'Serious urgent situation',
+        hint: 'When immediate help is needed',
+        emoji: '🚨',
+        difficulty: 'medium'
+    },
+    'vaccine': {
+        definition: 'Shot to prevent disease',
+        hint: 'Injection to protect from illness',
+        emoji: '💉',
+        difficulty: 'medium'
+    },
+    'nutrition': {
+        definition: 'Food needed for health',
+        hint: 'Eating right for your body',
+        emoji: '🥗',
+        difficulty: 'medium'
+    },
+    'vitamin': {
+        definition: 'Nutrient for health',
+        hint: 'Substance in food that helps body',
+        emoji: '💊',
+        difficulty: 'medium'
+    },
+    'surgery': {
+        definition: 'Medical operation',
+        hint: 'When doctor operates on body',
+        emoji: '⚕️',
+        difficulty: 'medium'
+    },
+    'prescription': {
+        definition: 'Doctor\'s written medicine order',
+        hint: 'Note telling what medicine to take',
+        emoji: '📋',
+        difficulty: 'medium'
+    },
+
+    // HARD WORDS (Advanced health vocabulary)
+    'diagnosis': {
+        definition: 'Identification of disease',
+        hint: 'Finding out what illness you have',
+        emoji: '🩺',
+        difficulty: 'hard'
+    },
+    'immune': {
+        definition: 'Protected against disease',
+        hint: 'Body\'s defense against sickness',
+        emoji: '🛡️',
+        difficulty: 'hard'
+    },
+    'chronic': {
+        definition: 'Lasting for long time',
+        hint: 'Illness that doesn\'t go away quickly',
+        emoji: '⏰',
+        difficulty: 'hard'
+    },
+    'cardiovascular': {
+        definition: 'Related to heart and blood vessels',
+        hint: 'About heart and circulation system',
+        emoji: '❤️',
+        difficulty: 'hard'
+    },
+    'respiratory': {
+        definition: 'Related to breathing',
+        hint: 'About lungs and breathing',
+        emoji: '🫁',
+        difficulty: 'hard'
+    },
+    'antibiotic': {
+        definition: 'Medicine killing bacteria',
+        hint: 'Drug to fight bacterial infection',
+        emoji: '💊',
+        difficulty: 'hard'
+    },
+    'rehabilitation': {
+        definition: 'Recovery training after injury',
+        hint: 'Therapy to restore health',
+        emoji: '🏋️',
+        difficulty: 'hard'
+    },
+    'metabolism': {
+        definition: 'Body\'s energy processing',
+        hint: 'How body converts food to energy',
+        emoji: '⚡',
+        difficulty: 'hard'
+    },
+    'cholesterol': {
+        definition: 'Fatty substance in blood',
+        hint: 'Fat in blood affecting heart',
+        emoji: '🩸',
+        difficulty: 'hard'
+    },
+    'diabetes': {
+        definition: 'Disease affecting blood sugar',
+        hint: 'Condition with too much sugar in blood',
+        emoji: '🩺',
+        difficulty: 'hard'
+    },
+    'depression': {
+        definition: 'Mental health condition of sadness',
+        hint: 'Feeling very sad for long time',
+        emoji: '😔',
+        difficulty: 'hard'
+    },
+    'anxiety': {
+        definition: 'Feeling of worry or fear',
+        hint: 'Excessive nervousness or stress',
+        emoji: '😰',
+        difficulty: 'hard'
+    },
+    'therapy': {
+        definition: 'Treatment for health problems',
+        hint: 'Professional help for issues',
+        emoji: '🗣️',
+        difficulty: 'hard'
+    },
+    'anatomy': {
+        definition: 'Study of body structure',
+        hint: 'Science of body parts',
+        emoji: '🦴',
+        difficulty: 'hard'
+    },
+    'contagious': {
+        definition: 'Can spread between people',
+        hint: 'Illness that passes from person to person',
+        emoji: '🦠',
+        difficulty: 'hard'
+    },
+    'prevention': {
+        definition: 'Stopping disease before it starts',
+        hint: 'Keeping illness from happening',
+        emoji: '🛡️',
+        difficulty: 'hard'
+    },
+    'diagnosis': {
+        definition: 'Determining nature of illness',
+        hint: 'Doctor figuring out what\'s wrong',
+        emoji: '🔬',
+        difficulty: 'hard'
+    },
+    'pediatric': {
+        definition: 'Related to children\'s medicine',
+        hint: 'Medical care for kids',
+        emoji: '👶',
+        difficulty: 'hard'
+    },
+    'psychiatric': {
+        definition: 'Related to mental health',
+        hint: 'About mind and emotions',
+        emoji: '🧠',
+        difficulty: 'hard'
+    },
+    'pharmaceutical': {
+        definition: 'Related to medicinal drugs',
+        hint: 'About medicine and drug industry',
+        emoji: '💊',
+        difficulty: 'hard'
+    }
+};
+
+// ============================================
+// THEME 6: TRAVEL & PLACES
+// ============================================
+const TRAVEL_PLACES_WORDS = {
+    // EASY WORDS (Basic travel vocabulary)
+    'city': {
+        definition: 'Large town',
+        hint: 'Big place with many people',
+        emoji: '🏙️',
+        difficulty: 'easy'
+    },
+    'country': {
+        definition: 'Nation with its own government',
+        hint: 'Place like USA, Japan, or France',
+        emoji: '🗺️',
+        difficulty: 'easy'
+    },
+    'map': {
+        definition: 'Drawing showing places',
+        hint: 'Paper showing roads and locations',
+        emoji: '🗺️',
+        difficulty: 'easy'
+    },
+    'hotel': {
+        definition: 'Place to stay overnight',
+        hint: 'Building with rooms for travelers',
+        emoji: '🏨',
+        difficulty: 'easy'
+    },
+    'airport': {
+        definition: 'Place where planes land',
+        hint: 'Where you catch flights',
+        emoji: '✈️',
+        difficulty: 'easy'
+    },
+    'train': {
+        definition: 'Vehicle running on tracks',
+        hint: 'Long vehicle with many cars',
+        emoji: '🚂',
+        difficulty: 'easy'
+    },
+    'bus': {
+        definition: 'Large vehicle for passengers',
+        hint: 'Public transport on roads',
+        emoji: '🚌',
+        difficulty: 'easy'
+    },
+    'car': {
+        definition: 'Small vehicle for traveling',
+        hint: 'Personal automobile',
+        emoji: '🚗',
+        difficulty: 'easy'
+    },
+    'taxi': {
+        definition: 'Car you hire for rides',
+        hint: 'Yellow cab that takes you places',
+        emoji: '🚕',
+        difficulty: 'easy'
+    },
+    'ticket': {
+        definition: 'Paper allowing travel',
+        hint: 'What you need to board plane',
+        emoji: '🎫',
+        difficulty: 'easy'
+    },
+    'passport': {
+        definition: 'Document for international travel',
+        hint: 'ID book for crossing borders',
+        emoji: '📔',
+        difficulty: 'easy'
+    },
+    'beach': {
+        definition: 'Sandy area by ocean',
+        hint: 'Where land meets sea',
+        emoji: '🏖️',
+        difficulty: 'easy'
+    },
+    'mountain': {
+        definition: 'Very high hill',
+        hint: 'Tall land formation with peak',
+        emoji: '⛰️',
+        difficulty: 'easy'
+    },
+    'river': {
+        definition: 'Large flowing water',
+        hint: 'Water flowing to sea',
+        emoji: '🌊',
+        difficulty: 'easy'
+    },
+    'lake': {
+        definition: 'Large body of water',
+        hint: 'Big area of still water',
+        emoji: '🏞️',
+        difficulty: 'easy'
+    },
+    'restaurant': {
+        definition: 'Place to eat meals',
+        hint: 'Business serving food',
+        emoji: '🍽️',
+        difficulty: 'easy'
+    },
+    'tourist': {
+        definition: 'Person visiting for pleasure',
+        hint: 'Someone on vacation',
+        emoji: '📸',
+        difficulty: 'easy'
+    },
+    'guide': {
+        definition: 'Person who shows places',
+        hint: 'Someone who leads tours',
+        emoji: '🧑‍🏫',
+        difficulty: 'easy'
+    },
+    'camera': {
+        definition: 'Device for taking pictures',
+        hint: 'Takes photos of memories',
+        emoji: '📷',
+        difficulty: 'easy'
+    },
+    'luggage': {
+        definition: 'Bags for carrying belongings',
+        hint: 'Suitcases for travel',
+        emoji: '🧳',
+        difficulty: 'easy'
+    },
+
+    // MEDIUM WORDS (Intermediate travel vocabulary)
+    'destination': {
+        definition: 'Place you are going to',
+        hint: 'Final location of journey',
+        emoji: '📍',
+        difficulty: 'medium'
+    },
+    'departure': {
+        definition: 'Act of leaving',
+        hint: 'When you start your trip',
+        emoji: '🛫',
+        difficulty: 'medium'
+    },
+    'arrival': {
+        definition: 'Act of reaching place',
+        hint: 'When you get to destination',
+        emoji: '🛬',
+        difficulty: 'medium'
+    },
+    'reservation': {
+        definition: 'Booking made in advance',
+        hint: 'Arranging room or seat ahead',
+        emoji: '📅',
+        difficulty: 'medium'
+    },
+    'itinerary': {
+        definition: 'Planned route or schedule',
+        hint: 'Travel plan showing stops',
+        emoji: '📋',
+        difficulty: 'medium'
+    },
+    'accommodation': {
+        definition: 'Place to stay',
+        hint: 'Lodging like hotel or hostel',
+        emoji: '🏨',
+        difficulty: 'medium'
+    },
+    'tourist attraction': {
+        definition: 'Famous place to visit',
+        hint: 'Popular site for sightseeing',
+        emoji: '🗼',
+        difficulty: 'medium'
+    },
+    'monument': {
+        definition: 'Structure built to remember',
+        hint: 'Historic building or statue',
+        emoji: '🗿',
+        difficulty: 'medium'
+    },
+    'museum': {
+        definition: 'Building displaying history or art',
+        hint: 'Place showing cultural items',
+        emoji: '🏛️',
+        difficulty: 'medium'
+    },
+    'cathedral': {
+        definition: 'Large important church',
+        hint: 'Grand religious building',
+        emoji: '⛪',
+        difficulty: 'medium'
+    },
+    'customs': {
+        definition: 'Border check for goods',
+        hint: 'Inspection when entering country',
+        emoji: '🛂',
+        difficulty: 'medium'
+    },
+    'currency': {
+        definition: 'Money used in country',
+        hint: 'Type of money like dollars or euros',
+        emoji: '💱',
+        difficulty: 'medium'
+    },
+    'exchange': {
+        definition: 'Swap one currency for another',
+        hint: 'Trading money between countries',
+        emoji: '💱',
+        difficulty: 'medium'
+    },
+    'visa': {
+        definition: 'Permission to enter country',
+        hint: 'Stamp in passport allowing entry',
+        emoji: '📝',
+        difficulty: 'medium'
+    },
+    'souvenir': {
+        definition: 'Item reminding of place',
+        hint: 'Gift bought while traveling',
+        emoji: '🎁',
+        difficulty: 'medium'
+    },
+    'backpack': {
+        definition: 'Bag carried on back',
+        hint: 'Rucksack for travelers',
+        emoji: '🎒',
+        difficulty: 'medium'
+    },
+    'voyage': {
+        definition: 'Long journey',
+        hint: 'Extended trip especially by sea',
+        emoji: '⛵',
+        difficulty: 'medium'
+    },
+    'cruise': {
+        definition: 'Vacation trip on ship',
+        hint: 'Sailing journey for pleasure',
+        emoji: '🚢',
+        difficulty: 'medium'
+    },
+    'expedition': {
+        definition: 'Journey for specific purpose',
+        hint: 'Organized trip for exploration',
+        emoji: '🧭',
+        difficulty: 'medium'
+    },
+    'hostel': {
+        definition: 'Budget accommodation',
+        hint: 'Cheap lodging for travelers',
+        emoji: '🏨',
+        difficulty: 'medium'
+    },
+
+    // HARD WORDS (Advanced travel vocabulary)
+    'cosmopolitan': {
+        definition: 'Having international character',
+        hint: 'Diverse and worldly city',
+        emoji: '🌍',
+        difficulty: 'hard'
+    },
+    'exotic': {
+        definition: 'Foreign and unusual',
+        hint: 'Attractively strange or different',
+        emoji: '🌺',
+        difficulty: 'hard'
+    },
+    'indigenous': {
+        definition: 'Native to a region',
+        hint: 'Original people of an area',
+        emoji: '🏺',
+        difficulty: 'hard'
+    },
+    'heritage': {
+        definition: 'Traditions passed down',
+        hint: 'Cultural legacy and history',
+        emoji: '🏛️',
+        difficulty: 'hard'
+    },
+    'pilgrimage': {
+        definition: 'Religious journey',
+        hint: 'Spiritual trip to sacred place',
+        emoji: '🕌',
+        difficulty: 'hard'
+    },
+    'nomadic': {
+        definition: 'Moving from place to place',
+        hint: 'Lifestyle without permanent home',
+        emoji: '🏕️',
+        difficulty: 'hard'
+    },
+    'metropolis': {
+        definition: 'Very large city',
+        hint: 'Major urban center',
+        emoji: '🏙️',
+        difficulty: 'hard'
+    },
+    'architecture': {
+        definition: 'Design of buildings',
+        hint: 'Style and art of construction',
+        emoji: '🏗️',
+        difficulty: 'hard'
+    },
+    'infrastructure': {
+        definition: 'Basic facilities of area',
+        hint: 'Roads, bridges, and public systems',
+        emoji: '🌉',
+        difficulty: 'hard'
+    },
+    'immigration': {
+        definition: 'Entering to live in country',
+        hint: 'Moving to new nation permanently',
+        emoji: '🛂',
+        difficulty: 'hard'
+    },
+    'embassy': {
+        definition: 'Official office in foreign country',
+        hint: 'Government representation abroad',
+        emoji: '🏛️',
+        difficulty: 'hard'
+    },
+    'globalization': {
+        definition: 'Worldwide connection',
+        hint: 'International integration',
+        emoji: '🌐',
+        difficulty: 'hard'
+    },
+    'ecotourism': {
+        definition: 'Environmentally responsible travel',
+        hint: 'Nature-focused sustainable tourism',
+        emoji: '🌿',
+        difficulty: 'hard'
+    },
+    'itinerant': {
+        definition: 'Traveling from place to place',
+        hint: 'Moving around constantly',
+        emoji: '🚶',
+        difficulty: 'hard'
+    },
+    'quarantine': {
+        definition: 'Isolation to prevent disease spread',
+        hint: 'Required separation for health',
+        emoji: '🏥',
+        difficulty: 'hard'
+    },
+    'expedition': {
+        definition: 'Organized journey for purpose',
+        hint: 'Scientific or exploratory trip',
+        emoji: '🗺️',
+        difficulty: 'hard'
+    },
+    'topography': {
+        definition: 'Physical features of area',
+        hint: 'Land surface characteristics',
+        emoji: '🗻',
+        difficulty: 'hard'
+    },
+    'peninsula': {
+        definition: 'Land surrounded by water on three sides',
+        hint: 'Landmass jutting into sea',
+        emoji: '🏝️',
+        difficulty: 'hard'
+    },
+    'archipelago': {
+        definition: 'Group of islands',
+        hint: 'Chain of many islands',
+        emoji: '🏝️',
+        difficulty: 'hard'
+    },
+    'urbanization': {
+        definition: 'Growth of cities',
+        hint: 'Process of becoming more city-like',
+        emoji: '🏗️',
+        difficulty: 'hard'
+    }
+};
+
+// ============================================
 // THEME MANAGEMENT
 // ============================================
 
@@ -1138,6 +2251,27 @@ const THEMES = {
         words: TECHNOLOGY_WORDS,
         emoji: '💻',
         color: '#95E1D3'
+    },
+    'business-work': {
+        name: 'Business & Work',
+        description: 'Office, jobs, workplace, money, and professional vocabulary',
+        words: BUSINESS_WORK_WORDS,
+        emoji: '💼',
+        color: '#F39C12'
+    },
+    'health-body': {
+        name: 'Health & Body',
+        description: 'Body parts, health, medicine, and wellness',
+        words: HEALTH_BODY_WORDS,
+        emoji: '❤️',
+        color: '#E74C3C'
+    },
+    'travel-places': {
+        name: 'Travel & Places',
+        description: 'Countries, cities, transportation, and tourism',
+        words: TRAVEL_PLACES_WORDS,
+        emoji: '✈️',
+        color: '#3498DB'
     }
 };
 
