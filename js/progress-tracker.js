@@ -76,6 +76,11 @@
                 return false;
             }
 
+            // Show saving indicator
+            if (typeof VocabLabUI !== 'undefined') {
+                VocabLabUI.showSaving('Saving your progress...');
+            }
+
             try {
                 const db = firebase.firestore();
 
@@ -108,10 +113,24 @@
                 await db.collection('progress').add(progressData);
 
                 console.log('Progress saved successfully');
+
+                // Show success feedback
+                if (typeof VocabLabUI !== 'undefined') {
+                    VocabLabUI.hideSaving(true, 'Progress saved!');
+                    VocabLabUI.showToast('Your progress has been saved successfully!', 'success');
+                }
+
                 return true;
 
             } catch (error) {
                 console.error('Error saving progress:', error);
+
+                // Show error feedback
+                if (typeof VocabLabUI !== 'undefined') {
+                    VocabLabUI.hideSaving(false, 'Save failed');
+                    VocabLabUI.showToast('Failed to save progress. Please try again.', 'error');
+                }
+
                 return false;
             }
         },

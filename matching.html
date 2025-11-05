@@ -11,20 +11,19 @@
         <header>
             <nav>
                 <a href="index.html" class="logo">
-                    <span class="emoji">🧪</span>
-                    <span>VocabLab</span>
+                    <span class="logo-text">VocabLab</span>
                 </a>
                 <div class="nav-links">
-                    <a href="index.html">🏠 Home</a>
-                    <a href="vocabulary.html">📚 Words</a>
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="vocabulary.html" class="nav-link">Vocabulary</a>
                 </div>
             </nav>
         </header>
 
         <main>
             <div class="game-header">
-                <h1>🎯 Match the Words!</h1>
-                <p>Click a word, then click its definition</p>
+                <h1>Match the Words</h1>
+                <p>Click a word, then click its matching definition</p>
                 <div class="game-stats">
                     <span>Score: <span id="score">0</span></span>
                     <span>Matches: <span id="matches">0</span>/<span id="total">6</span></span>
@@ -70,8 +69,8 @@
         </main>
 
         <footer>
-            <p>🧪 VocabLab - Learn English with Fun!</p>
-            <p class="small">Interactive ESL Vocabulary Games</p>
+            <p>&copy; 2025 VocabLab - Interactive ESL Vocabulary Learning</p>
+            <p class="small">Engaging games and activities for all levels</p>
         </footer>
     </div>
 
@@ -85,8 +84,20 @@
     <!-- Progress Tracker -->
     <script src="js/progress-tracker.js"></script>
 
+    <!-- UI Components -->
+    <script src="js/ui-components.js"></script>
+
+    <!-- Game Instructions -->
+    <script src="js/game-instructions.js"></script>
+
     <script src="js/vocabulary.js"></script>
     <script>
+        // Add How to Play button
+        addHowToPlayButton('matching');
+
+        // Show tip when game starts
+        setTimeout(() => showContextualTip('matching', 'start'), 2000);
+
         let selectedWord = null;
         let selectedDefinition = null;
         let score = 0;
