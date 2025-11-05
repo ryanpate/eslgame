@@ -3366,3 +3366,581 @@ input:focus-visible {
         grid-template-columns: 1fr;
     }
 }
+/* ============================================
+   UI COMPONENTS - TOAST NOTIFICATIONS
+   ============================================ */
+
+.toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 400px;
+}
+
+.toast {
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xl);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-left: 4px solid;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+.toast-show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast-success {
+    border-left-color: var(--success);
+}
+
+.toast-error {
+    border-left-color: var(--danger);
+}
+
+.toast-warning {
+    border-left-color: var(--warning);
+}
+
+.toast-info {
+    border-left-color: var(--info);
+}
+
+.toast-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.toast-success .toast-icon {
+    background: var(--success);
+    color: white;
+}
+
+.toast-error .toast-icon {
+    background: var(--danger);
+    color: white;
+}
+
+.toast-warning .toast-icon {
+    background: var(--warning);
+    color: white;
+}
+
+.toast-info .toast-icon {
+    background: var(--info);
+    color: white;
+}
+
+.toast-message {
+    flex: 1;
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.toast-close:hover {
+    background: var(--card-hover);
+    color: var(--text-primary);
+}
+
+/* ============================================
+   UI COMPONENTS - LOADING STATES
+   ============================================ */
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    border-radius: inherit;
+}
+
+.loading-fade-out {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.loading-spinner {
+    text-align: center;
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--card-hover);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-message {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+/* ============================================
+   UI COMPONENTS - SKELETON SCREENS
+   ============================================ */
+
+.skeleton-item {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 1rem;
+    border: 1px solid #E5E7EB;
+}
+
+.skeleton-line {
+    height: 1rem;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+}
+
+.skeleton-title {
+    height: 1.5rem;
+    width: 60%;
+}
+
+.skeleton-text {
+    width: 100%;
+}
+
+.skeleton-text.short {
+    width: 80%;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ============================================
+   UI COMPONENTS - SAVING INDICATOR
+   ============================================ */
+
+.saving-indicator {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--card-bg);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    z-index: 9998;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.saving-indicator.saving-show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.saving-indicator.saving-success {
+    background: var(--success);
+    color: white;
+}
+
+.saving-indicator.saving-error {
+    background: var(--danger);
+    color: white;
+}
+
+.saving-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.saving-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--card-hover);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+/* ============================================
+   UI COMPONENTS - TUTORIAL MODAL
+   ============================================ */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.modal-show {
+    opacity: 1;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: var(--shadow-xl);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal-show .modal-content {
+    transform: scale(1);
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: var(--card-hover);
+    color: var(--text-primary);
+}
+
+.tutorial-content h2 {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.75rem;
+}
+
+.tutorial-steps {
+    position: relative;
+    min-height: 300px;
+    margin-bottom: 2rem;
+}
+
+.tutorial-step {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.tutorial-step.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.tutorial-step-number {
+    width: 48px;
+    height: 48px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 auto 1rem;
+}
+
+.tutorial-step h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    text-align: center;
+    font-size: 1.25rem;
+}
+
+.tutorial-step p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    text-align: center;
+}
+
+.tutorial-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tutorial-dots {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tutorial-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #E5E7EB;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tutorial-dot.active {
+    background: var(--primary-color);
+    width: 24px;
+    border-radius: 5px;
+}
+
+.tutorial-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    cursor: pointer;
+    justify-content: center;
+}
+
+.tutorial-checkbox input[type="checkbox"] {
+    cursor: pointer;
+}
+
+/* ============================================
+   UI COMPONENTS - HOW TO PLAY MODAL
+   ============================================ */
+
+.how-to-play-content {
+    margin-top: 1.5rem;
+}
+
+.how-to-play-content h3 {
+    color: var(--text-primary);
+    font-size: 1.125rem;
+    margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.how-to-play-content h3:first-child {
+    margin-top: 0;
+}
+
+.how-to-play-objective p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.how-to-play-instructions ol {
+    padding-left: 1.5rem;
+}
+
+.how-to-play-instructions li {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 0.5rem;
+}
+
+.how-to-play-tips ul {
+    padding-left: 1.5rem;
+}
+
+.how-to-play-tips li {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 0.5rem;
+}
+
+.how-to-play-tips li::marker {
+    content: "💡 ";
+}
+
+.video-placeholder {
+    background: var(--card-hover);
+    padding: 2rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.modal-actions {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+/* ============================================
+   UI COMPONENTS - QUICK TIPS
+   ============================================ */
+
+.quick-tip {
+    position: fixed;
+    top: 5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    z-index: 9997;
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 500px;
+}
+
+.quick-tip-show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.quick-tip-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.quick-tip-icon {
+    font-size: 1.5rem;
+}
+
+.quick-tip-text {
+    font-size: 0.9375rem;
+    line-height: 1.4;
+}
+
+/* ============================================
+   UI COMPONENTS - GAME HOW TO PLAY BUTTON
+   ============================================ */
+
+.game-help-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 56px;
+    height: 56px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 100;
+}
+
+.game-help-btn:hover {
+    background: var(--primary-dark);
+    transform: scale(1.1);
+}
+
+/* Mobile responsiveness for UI components */
+@media (max-width: 768px) {
+    .toast-container {
+        left: 1rem;
+        right: 1rem;
+        max-width: none;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+    }
+
+    .tutorial-content h2 {
+        font-size: 1.5rem;
+    }
+
+    .quick-tip {
+        left: 1rem;
+        right: 1rem;
+        max-width: none;
+        transform: none;
+    }
+
+    .quick-tip-show {
+        transform: none;
+    }
+
+    .game-help-btn {
+        width: 48px;
+        height: 48px;
+        bottom: 1rem;
+        right: 1rem;
+    }
+
+    .saving-indicator {
+        bottom: 1rem;
+    }
+}
