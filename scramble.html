@@ -96,6 +96,15 @@
     <!-- Progress Tracker -->
     <script src="js/progress-tracker.js"></script>
 
+    <!-- UI Components -->
+    <script src="js/ui-components.js"></script>
+
+    <!-- Game Instructions -->
+    <script src="js/game-instructions.js"></script>
+
+    <!-- Utils -->
+    <script src="js/utils.js"></script>
+
     <script src="js/vocabulary.js"></script>
     <script>
         let allWords = {};
@@ -107,6 +116,25 @@
         let currentDifficulty = 'all';
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize mobile features at start
+            if (typeof VocabLabUtils !== 'undefined') {
+                VocabLabUtils.addFullScreenButton();
+                VocabLabUtils.initMobileNavigation();
+                VocabLabUtils.optimizeTouchTargets();
+                VocabLabUtils.handleError();
+            }
+
+            // Add How to Play button
+            if (typeof addHowToPlayButton !== 'undefined') {
+                addHowToPlayButton('scramble');
+            }
+
+            // Show initial tip
+            setTimeout(() => {
+                if (typeof showContextualTip !== 'undefined') {
+                    showContextualTip('scramble', 'start');
+                }
+            }, 1000);
             currentDifficulty = getDifficultyFromURL();
             allWords = getWordsByDifficulty(currentDifficulty);
             wordList = Object.keys(allWords);
