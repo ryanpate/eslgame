@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Sort - VocabLab</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <a href="index.html" class="logo">
+                    <span class="emoji">🧪</span>
+                    <span>VocabLab</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">🏠 Home</a>
+                    <a href="vocabulary.html">📚 Words</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <div class="game-header">
+                <h1>📂 Category Sort</h1>
+                <p>Drag and drop words into the correct categories!</p>
+                <div class="game-stats">
+                    <span>Score: <span id="score">0</span>/<span id="total">0</span></span>
+                    <span>Time: <span id="timer">0:00</span></span>
+                </div>
+            </div>
+
+            <div id="category-game">
+                <!-- Instructions -->
+                <div class="sort-instructions">
+                    <p>📌 <strong>How to play:</strong> Drag each word to the category where it belongs. Get all words correct to complete the level!</p>
+                </div>
+
+                <!-- Categories -->
+                <div class="categories-container" id="categories-container">
+                    <!-- Categories will be generated here -->
+                </div>
+
+                <!-- Words to sort -->
+                <div class="words-pool">
+                    <h3>Words to Sort:</h3>
+                    <div class="words-list" id="words-list">
+                        <!-- Words will be generated here -->
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="game-controls">
+                    <button class="btn btn-secondary" id="hint-btn">💡 Hint</button>
+                    <button class="btn btn-primary" id="check-btn" disabled>✓ Check Answers</button>
+                    <button class="btn btn-secondary" id="reset-btn">🔄 Reset</button>
+                </div>
+            </div>
+
+            <!-- Complete Popup -->
+            <div id="complete-popup" class="popup hidden">
+                <div class="popup-content celebration">
+                    <h2>🎉 Well Done!</h2>
+                    <p>You've sorted all the words correctly!</p>
+                    <div class="final-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="final-score">0</div>
+                            <div class="stat-label">Points</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="final-time">0:00</div>
+                            <div class="stat-label">Time</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="attempts">1</div>
+                            <div class="stat-label">Attempts</div>
+                        </div>
+                    </div>
+                    <div class="popup-buttons">
+                        <a href="#" id="play-again-btn" class="btn btn-primary">Play Again</a>
+                        <a href="index.html" class="btn btn-secondary">Home</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>🧪 VocabLab - Learn English with Fun!</p>
+            <p class="small">Interactive ESL Vocabulary Games</p>
+        </footer>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="firebase-config.js"></script>
+
+    <!-- Progress Tracker -->
+    <script src="js/progress-tracker.js"></script>
+
+    <script src="js/vocabulary.js"></script>
+    <script>
+        let score = 0;
+        let totalWords = 0;
+        let startTime = null;
+        let timerInterval = null;
+        let attempts = 0;
+        let draggedElement = null;
+        let categories = {};
+        let correctPlacements = {};
+
+        // Get URL parameters
+        const difficulty = getDifficultyFromURL();
+        const theme = getThemeFromURL();
+
+        // Define categories based on theme
+        function getCategories() {
+            // For this game, we'll sort by difficulty levels
+            return {
+                'easy': {
+                    name: 'Easy Words',
+                    emoji: '😊',
+                    color: '#4ECDC4',
+                    words: []
+                },
+                'medium': {
+                    name: 'Medium Words',
+                    emoji: '😐',
+                    color: '#F39C12',
+                    words: []
+                },
+                'hard': {
+                    name: 'Hard Words',
+                    emoji: '😤',
+                    color: '#E74C3C',
+                    words: []
+                }
+            };
+        }
+
+        // Initialize game
+        function initGame() {
+            categories = getCategories();
+
+            // Get words from current theme
+            const allWords = getCurrentThemeWords();
+            const wordList = Object.keys(allWords);
+
+            // Randomly select 12 words (4 from each difficulty if possible)
+            const easyWords = wordList.filter(w => allWords[w].difficulty === 'easy');
+            const mediumWords = wordList.filter(w => allWords[w].difficulty === 'medium');
+            const hardWords = wordList.filter(w => allWords[w].difficulty === 'hard');
+
+            const selectedWords = [
+                ...shuffleArray(easyWords).slice(0, 4),
+                ...shuffleArray(mediumWords).slice(0, 4),
+                ...shuffleArray(hardWords).slice(0, 4)
+            ];
+
+            totalWords = selectedWords.length;
+            document.getElementById('total').textContent = totalWords;
+
+            // Store correct answers
+            selectedWords.forEach(word => {
+                correctPlacements[word] = allWords[word].difficulty;
+            });
+
+            // Shuffle and create word elements
+            const shuffledWords = shuffleArray(selectedWords);
+            renderCategories();
+            renderWords(shuffledWords, allWords);
+
+            // Start timer
+            startTime = Date.now();
+            startTimer();
+        }
+
+        // Render categories
+        function renderCategories() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+
+            Object.keys(categories).forEach(catKey => {
+                const cat = categories[catKey];
+                const catDiv = document.createElement('div');
+                catDiv.className = 'category-box';
+                catDiv.dataset.category = catKey;
+                catDiv.style.borderColor = cat.color;
+
+                catDiv.innerHTML = `
+                    <div class="category-header" style="background-color: ${cat.color}">
+                        <span class="category-emoji">${cat.emoji}</span>
+                        <span class="category-name">${cat.name}</span>
+                    </div>
+                    <div class="category-drop-zone" data-category="${catKey}">
+                        <div class="drop-placeholder">Drop words here</div>
+                    </div>
+                `;
+
+                container.appendChild(catDiv);
+
+                // Add drop event listeners
+                const dropZone = catDiv.querySelector('.category-drop-zone');
+                dropZone.addEventListener('dragover', handleDragOver);
+                dropZone.addEventListener('drop', handleDrop);
+                dropZone.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+
+        // Render words
+        function renderWords(words, allWords) {
+            const wordsList = document.getElementById('words-list');
+            wordsList.innerHTML = '';
+
+            words.forEach(word => {
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'word-card';
+                wordDiv.draggable = true;
+                wordDiv.dataset.word = word;
+                wordDiv.innerHTML = `
+                    <span class="word-emoji">${allWords[word].emoji}</span>
+                    <span class="word-text">${word}</span>
+                `;
+
+                // Add drag event listeners
+                wordDiv.addEventListener('dragstart', handleDragStart);
+                wordDiv.addEventListener('dragend', handleDragEnd);
+
+                wordsList.appendChild(wordDiv);
+            });
+        }
+
+        // Drag and drop handlers
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('drag-over');
+            return false;
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            e.preventDefault();
+
+            this.classList.remove('drag-over');
+
+            if (draggedElement) {
+                // Remove placeholder if exists
+                const placeholder = this.querySelector('.drop-placeholder');
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+
+                // Move the word to this category
+                this.appendChild(draggedElement);
+                draggedElement.classList.remove('dragging');
+
+                // Update check button
+                updateCheckButton();
+            }
+
+            return false;
+        }
+
+        // Update check button state
+        function updateCheckButton() {
+            const wordsInPool = document.querySelectorAll('#words-list .word-card').length;
+            const checkBtn = document.getElementById('check-btn');
+            checkBtn.disabled = wordsInPool > 0;
+        }
+
+        // Check answers
+        document.getElementById('check-btn').addEventListener('click', function() {
+            attempts++;
+            let correct = 0;
+
+            // Check each category
+            Object.keys(categories).forEach(catKey => {
+                const dropZone = document.querySelector(`.category-drop-zone[data-category="${catKey}"]`);
+                const words = dropZone.querySelectorAll('.word-card');
+
+                words.forEach(wordCard => {
+                    const word = wordCard.dataset.word;
+                    const isCorrect = correctPlacements[word] === catKey;
+
+                    if (isCorrect) {
+                        wordCard.classList.add('correct');
+                        wordCard.classList.remove('incorrect');
+                        correct++;
+                    } else {
+                        wordCard.classList.add('incorrect');
+                        wordCard.classList.remove('correct');
+                    }
+                });
+            });
+
+            score = correct;
+            document.getElementById('score').textContent = score;
+
+            if (correct === totalWords) {
+                setTimeout(endGame, 1000);
+            } else {
+                // Show feedback
+                const incorrectCount = totalWords - correct;
+                alert(`${correct}/${totalWords} correct! ${incorrectCount} words need to be moved.`);
+            }
+        });
+
+        // Hint button
+        document.getElementById('hint-btn').addEventListener('click', function() {
+            // Show one correct placement
+            const incorrectWords = document.querySelectorAll('.word-card:not(.correct)');
+            if (incorrectWords.length > 0) {
+                const randomWord = incorrectWords[Math.floor(Math.random() * incorrectWords.length)];
+                const word = randomWord.dataset.word;
+                const correctCategory = correctPlacements[word];
+                alert(`Hint: "${word}" belongs in ${categories[correctCategory].name}`);
+            }
+        });
+
+        // Reset button
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            location.reload();
+        });
+
+        // Start timer
+        function startTimer() {
+            timerInterval = setInterval(function() {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('timer').textContent =
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // End game
+        function endGame() {
+            clearInterval(timerInterval);
+
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-time').textContent = timeStr;
+            document.getElementById('attempts').textContent = attempts;
+
+            document.getElementById('complete-popup').classList.remove('hidden');
+
+            // Calculate percentage
+            const accuracy = Math.round((score / totalWords) * 100);
+
+            // Save progress if student is logged in
+            const params = VocabLabProgress.getGameParams();
+            VocabLabProgress.saveProgress({
+                game: 'Category Sort',
+                theme: params.theme,
+                difficulty: params.difficulty,
+                score: accuracy,
+                correctAnswers: score,
+                totalQuestions: totalWords,
+                timeSpent: elapsed
+            });
+        }
+
+        // Play again
+        document.getElementById('play-again-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            location.reload();
+        });
+
+        // Initialize game
+        initGame();
+    </script>
+</body>
+</html>
