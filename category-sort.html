@@ -116,6 +116,25 @@
         const difficulty = getDifficultyFromURL();
         const theme = getThemeFromURL();
 
+        // Initialize mobile features
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof VocabLabUtils !== 'undefined') {
+                VocabLabUtils.addFullScreenButton();
+            }
+
+            // Add How to Play button
+            if (typeof addHowToPlayButton !== 'undefined') {
+                addHowToPlayButton('category-sort');
+            }
+
+            // Show initial tip
+            setTimeout(() => {
+                if (typeof showContextualTip !== 'undefined') {
+                    showContextualTip('category-sort', 'start');
+                }
+            }, 1000);
+        });
+
         // Define categories based on theme
         function getCategories() {
             // For this game, we'll sort by difficulty levels
